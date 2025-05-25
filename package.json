@@ -1,6 +1,6 @@
 {
   "name": "api-mock-gui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A GUI library for mocking API responses with case management",
   "type": "module",
   "main": "dist/index.js",
