@@ -4,15 +4,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
-**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 초간단 라이브러리입니다. 설치만 하면 자동으로 floating button이 나타나며, MSW(Mock Service Worker)를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
+**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 초간단 라이브러리입니다. 설치만 하면 자동으로 작은 floating button이 나타나며, MSW(Mock Service Worker)를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
 
 ## ✨ 주요 특징
 
 - 🚀 **Zero Config**: 라이브러리 import만으로 즉시 활성화
-- 🎯 **자동 Floating Button**: 개발 환경에서 자동으로 우측 하단에 버튼 생성
+- 🎯 **자동 Floating Button**: 개발 환경에서 작고 둥근 버튼이 우측 하단에 자동 생성
 - 📡 **MSW 통합**: Service Worker를 통한 실제 네트워크 요청 차단
-- 🔄 **실시간 제어**: Mock 서버 시작/중지 및 설정 변경
-- 🔧 **개발자 친화적**: TypeScript 지원 및 직관적인 API
+- 🔄 **실시간 제어**: Mock 서버 시작/중지 및 API 설정 변경
+- 🔧 **개발자 친화적**: TypeScript 지원 및 직관적인 GUI
 - 🌐 **프레임워크 무관**: React, Next.js, Vue.js 등 다양한 환경 지원
 
 ## 🚀 빠른 시작
@@ -40,386 +40,165 @@ function App() {
 }
 ```
 
-이것만으로 우측 하단에 floating button이 자동으로 나타납니다! 🎉
+이것만으로 우측 하단에 작은 floating button이 자동으로 나타납니다! 🎉
 
 ## 📋 사용 방법
 
-### 🎯 기본 사용법 (권장)
-
-라이브러리를 import하면 자동으로 floating button이 나타납니다.
+### 🎯 기본 사용법
 
 ```typescript
 import 'api-mock-gui';
 ```
 
-**특징:**
-- 개발 환경(localhost, 127.0.0.1 등) 자동 감지
-- 우측 하단에 floating button 자동 표시
-- 클릭하면 Mock API 관리 패널이 열림
-- 프로덕션에서는 자동으로 비활성화
+**자동으로 발생하는 일들:**
+- ✅ 개발 환경(localhost, 127.0.0.1 등) 자동 감지
+- ✅ 우측 하단에 작고 둥근 floating button 자동 표시
+- ✅ 클릭하면 Mock API 관리 패널이 열림
+- ✅ 프로덕션에서는 자동으로 비활성화
+- ✅ MSW를 통한 HTTP 요청 자동 가로채기
 
-### 🎮 수동 제어 (선택사항)
+### 🎮 GUI 사용법
 
-브라우저 콘솔에서 직접 제어할 수 있습니다.
+1. **Floating Button 클릭** → 관리 패널 열기
+2. **Mock Server 시작** → "Start" 버튼 클릭
+3. **API 추가** → "Add API" 버튼으로 새 API 생성
+4. **API 설정**:
+   - Name: API 이름 (예: "Get Users")
+   - Method: HTTP 메소드 (GET, POST, PUT, DELETE, PATCH)
+   - Path: API 경로 (예: "/api/users")
+   - Description: 설명 (선택사항)
+5. **자동 응답** → 기본 200 응답이 자동 생성됨
+6. **실시간 테스트** → 앱에서 해당 API 호출 시 Mock 응답 받음
 
-```javascript
-// 브라우저 콘솔에서
-window.cleanupApiMockGui(); // 완전히 제거
-```
-
-### 🪟 팝업 모드 컴포넌트
+### 🧪 실제 사용 예시
 
 ```typescript
-import React from 'react';
-import { PopupApiMockManager, mswHelpers } from 'api-mock-gui';
+// 1. 라이브러리 import
+import 'api-mock-gui';
 
-function App() {
-  const serverConfig = mswHelpers.createServerConfig({
-    baseUrl: 'http://localhost:3000',
-    environment: 'browser',
-    development: true
-  });
+function MyApp() {
+  const [users, setUsers] = useState([]);
+
+  // 2. 실제 API 호출 (Mock으로 가로채짐)
+  const fetchUsers = async () => {
+    const response = await fetch('/api/users');
+    const data = await response.json();
+    setUsers(data.users || []);
+  };
 
   return (
     <div>
-      <PopupApiMockManager
-        serverConfig={serverConfig}
-        autoStart={true}
-        position="bottom-right"
-        buttonText="API Mock"
-        popupWidth={1000}
-        popupHeight={700}
-      />
-      {/* Your app content */}
+      <button onClick={fetchUsers}>Load Users</button>
+      {/* Floating button이 자동으로 우측 하단에 나타남 */}
     </div>
   );
 }
 ```
 
-### 🎈 Floating 모드 컴포넌트
+### 🎛️ 수동 제어 (선택사항)
 
-```typescript
-import React from 'react';
-import { FloatingApiMockManager, mswHelpers } from 'api-mock-gui';
-
-function App() {
-  const serverConfig = mswHelpers.createServerConfig({
-    baseUrl: 'http://localhost:3000',
-    environment: 'browser',
-    development: true
-  });
-
-  return (
-    <div>
-      <FloatingApiMockManager
-        serverConfig={serverConfig}
-        autoStart={true}
-        position="bottom-right"
-        buttonText="API Mock"
-        panelWidth="900px"
-        panelHeight="700px"
-        draggable={true}
-        minimizable={true}
-      />
-      {/* Your app content */}
-    </div>
-  );
-}
-```
-
-### 📦 인라인 모드 컴포넌트
-
-```typescript
-import React from 'react';
-import { ApiMockManager, mswHelpers } from 'api-mock-gui';
-
-function App() {
-  const serverConfig = mswHelpers.createServerConfig({
-    baseUrl: 'http://localhost:3000',
-    environment: 'browser',
-    development: true
-  });
-
-  return (
-    <div style={{ height: '100vh' }}>
-      <ApiMockManager
-        serverConfig={serverConfig}
-        autoStart={true}
-        enableExport={true}
-        enableImport={true}
-      />
-    </div>
-  );
-}
-```
-
-## 🎛️ 설정 옵션
-
-### 전역 설정
-
-```typescript
-// 자동 초기화 비활성화
-window.API_MOCK_AUTO_INIT = false;
-
-// 설정 커스터마이징
-window.API_MOCK_AUTO_INIT = {
-  position: 'top-left',
-  buttonText: 'Mock API',
-  autoStart: false,
-  development: true
-};
-```
-
-### 브라우저 콘솔에서 제어
+브라우저 콘솔에서 직접 제어할 수 있습니다:
 
 ```javascript
-// 수동 활성화
-window.apiMockGuiInit();
-
-// 정리
-window.apiMockGuiCleanup();
-```
-
-## 📚 API 참조
-
-### `initAutoApiMock(options)`
-
-자동 초기화 함수입니다.
-
-```typescript
-interface AutoApiMockInitProps {
-  baseUrl?: string;              // 기본: window.location.origin
-  environment?: 'browser' | 'node'; // 기본: 'browser'
-  development?: boolean;         // 기본: 자동 감지
-  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; // 기본: 'bottom-right'
-  buttonText?: string;           // 기본: 'API Mock'
-  autoStart?: boolean;           // 기본: development 값과 동일
-  disabled?: boolean;            // 기본: false
-}
-```
-
-### `PopupApiMockManager` Props
-
-```typescript
-interface PopupApiMockManagerProps {
-  serverConfig: MockServerConfig;
-  autoStart?: boolean;           // 기본: false
-  position?: string;             // 기본: 'bottom-right'
-  buttonText?: string;           // 기본: 'API Mock'
-  buttonIcon?: React.ReactNode;
-  popupWidth?: number;           // 기본: 1000
-  popupHeight?: number;          // 기본: 700
-  autoShow?: boolean;            // 기본: true
-  onServerStart?: () => void;
-  onServerStop?: () => void;
-  onConfigChange?: (apis: MockApi[]) => void;
-}
-```
-
-### `FloatingApiMockManager` Props
-
-```typescript
-interface FloatingApiMockManagerProps {
-  serverConfig: MockServerConfig;
-  autoStart?: boolean;           // 기본: false
-  position?: string;             // 기본: 'bottom-right'
-  buttonText?: string;
-  buttonIcon?: React.ReactNode;
-  panelWidth?: string;           // 기본: '800px'
-  panelHeight?: string;          // 기본: '600px'
-  minimizable?: boolean;         // 기본: true
-  draggable?: boolean;           // 기본: true
-  onServerStart?: () => void;
-  onServerStop?: () => void;
-  onConfigChange?: (apis: MockApi[]) => void;
-}
+// 완전히 제거
+window.cleanupApiMockGui();
 ```
 
 ## 🔧 고급 사용법
 
-### 초기 API 설정
+### 🎨 커스텀 스타일링
 
 ```typescript
-const initialConfig = [
-  {
-    id: 'users-api',
-    name: 'Users API',
-    method: 'GET',
-    path: '/api/users',
-    description: 'Get all users',
-    cases: [
-      {
-        id: 'success',
-        name: 'Success Response',
-        description: 'Returns list of users',
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: {
-          success: true,
-          data: [
-            { id: 1, name: 'John Doe', email: 'john@example.com' },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
-          ]
-        },
-        isActive: true
-      },
-      {
-        id: 'error',
-        name: 'Server Error',
-        description: 'Internal server error',
-        status: 500,
-        body: { success: false, message: 'Internal server error' },
-        delay: 1000,
-        isActive: false
-      }
-    ],
-    activeCase: 'success',
-    isEnabled: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-<ApiMockManager
-  serverConfig={serverConfig}
-  initialConfig={initialConfig}
-  // ... other props
-/>
+// CSS 포함이 필요한 경우
+import 'api-mock-gui/dist/styles.css';
 ```
 
-### 환경별 설정
+### 🌐 프레임워크별 가이드
 
-```typescript
-// 개발 환경
-const devConfig = mswHelpers.createServerConfig({
-  baseUrl: 'http://localhost:3000',
-  environment: 'browser',
-  development: true
-});
-
-// 스테이징 환경
-const stagingConfig = mswHelpers.createServerConfig({
-  baseUrl: 'https://api-staging.example.com',
-  environment: 'browser',
-  development: false
-});
-
-// 프로덕션 환경 (일반적으로 비활성화)
-const prodConfig = mswHelpers.createServerConfig({
-  baseUrl: 'https://api.example.com',
-  environment: 'browser',
-  development: false
-});
-```
-
-### 이벤트 핸들링
-
-```typescript
-<ApiMockManager
-  serverConfig={serverConfig}
-  onServerStart={() => {
-    console.log('🎭 Mock server started!');
-    // 개발자 도구에 알림 표시
-    console.log('%c Mock Server Active ', 'background: #10b981; color: white; padding: 2px 4px; border-radius: 2px;');
-  }}
-  onServerStop={() => {
-    console.log('🛑 Mock server stopped!');
-  }}
-  onConfigChange={(apis) => {
-    console.log(`📝 API configuration updated: ${apis.length} endpoints`);
-    // localStorage에 설정 저장
-    localStorage.setItem('mock-api-config', JSON.stringify(apis));
-  }}
-/>
-```
-
-## 🌐 프레임워크별 가이드
-
-### Next.js
-
+#### Next.js
 ```typescript
 // pages/_app.tsx 또는 app/layout.tsx
-import 'api-mock-gui/auto';
+import 'api-mock-gui';
 
 export default function App({ Component, pageProps }) {
   return <Component {...pageProps} />;
 }
 ```
 
-### Vue.js
-
+#### Vue.js
 ```javascript
 // main.js
-import { initAutoApiMock } from 'api-mock-gui';
+import 'api-mock-gui';
 
-if (process.env.NODE_ENV === 'development') {
-  initAutoApiMock({
-    development: true,
-    autoStart: true
-  });
-}
+const app = createApp(App);
+app.mount('#app');
 ```
 
-### Vanilla JavaScript
-
+#### Vanilla JavaScript
 ```html
 <script type="module">
-  import { initAutoApiMock } from 'api-mock-gui';
-  
-  initAutoApiMock({
-    development: true,
-    autoStart: true,
-    position: 'bottom-right'
-  });
+  import 'api-mock-gui';
 </script>
 ```
 
-## 🎨 스타일링
+## 🔍 실제 동작 방식
 
-### CSS 스타일시트 임포트
+### MSW 기반 요청 가로채기
 
-```typescript
-import 'api-mock-gui/dist/styles.css';
+```mermaid
+sequenceDiagram
+    participant App as 사용자 앱
+    participant MSW as MSW Worker
+    participant GUI as Mock GUI
+    participant Server as 실제 서버
+
+    Note over GUI: GUI에서 Mock API 설정
+    GUI->>MSW: Handler 등록 (GET /api/users)
+    
+    Note over App: 앱에서 API 호출
+    App->>MSW: fetch('/api/users')
+    MSW->>MSW: 등록된 Handler 확인
+    MSW->>App: Mock 응답 반환
+    
+    Note over Server: 실제 서버는 호출되지 않음
 ```
 
-### 커스텀 스타일링
+### 내부 동작 과정
 
-```css
-/* floating button 커스터마이징 */
-#api-mock-gui-auto-container button {
-  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%) !important;
-}
+1. **Import 시**: 자동으로 floating button 생성
+2. **개발 환경 감지**: localhost, 127.0.0.1 등에서만 활성화
+3. **MSW 초기화**: Service Worker를 통한 요청 가로채기 준비
+4. **GUI 제어**: 실시간으로 Mock API 추가/수정/삭제
+5. **자동 Handler 업데이트**: GUI 변경 시 MSW Handler 자동 갱신
 
-/* 팝업 창 커스터마이징 */
-.api-mock-manager {
-  font-family: 'SF Pro Display', system-ui, sans-serif;
-}
+## 📦 라이브러리 구조
+
+```
+api-mock-gui/
+├── dist/
+│   ├── index.js          # 메인 라이브러리 (자동 초기화 포함)
+│   ├── index.d.ts        # TypeScript 타입 정의
+│   └── styles.css        # Tailwind CSS 스타일
+└── 사용자는 이것만 설치하면 됨!
 ```
 
 ## 🔍 디버깅
 
 ### 개발자 도구에서 확인
 
-API Mock GUI가 올바르게 작동하는지 확인하는 방법:
-
-1. **콘솔 로그 확인**
+1. **콘솔 로그 확인**:
    ```
-   🎭 API Mock GUI Auto Mode가 활성화되었습니다!
+   🎭 API Mock GUI Floating Button이 자동으로 생성되었습니다!
    💡 우측 하단의 floating button을 클릭하여 사용하세요.
    ```
 
-2. **Network 탭 확인**
+2. **Network 탭 확인**:
    - Mock된 요청은 `(from service worker)` 표시
    - 실제 네트워크 요청 대신 로컬 응답
 
-3. **Console에서 수동 제어**
-   ```javascript
-   // 상태 확인
-   console.log(window.apiMockGuiInit);
-   
-   // 수동 초기화
-   window.apiMockGuiInit();
-   ```
+3. **Floating Button 확인**:
+   - 우측 하단에 작은 둥근 버튼 (Settings 아이콘)
+   - Server 실행 중일 때 초록색 dot 표시
 
 ### 일반적인 문제 해결
 
@@ -427,10 +206,11 @@ API Mock GUI가 올바르게 작동하는지 확인하는 방법:
 ```javascript
 // 환경 확인
 console.log('Hostname:', window.location.hostname);
-console.log('Port:', window.location.port);
 
-// 수동 활성화
-window.apiMockGuiInit({ development: true });
+// 개발 환경인지 확인
+const isDev = window.location.hostname.includes('localhost') || 
+              window.location.hostname.includes('127.0.0.1');
+console.log('Is Development:', isDev);
 ```
 
 **Q: MSW가 작동하지 않아요**
@@ -438,32 +218,10 @@ window.apiMockGuiInit({ development: true });
 2. `public/mockServiceWorker.js` 파일 존재 확인
 3. HTTPS 환경에서만 Service Worker 작동 (localhost 제외)
 
-**Q: TypeScript 에러가 발생해요**
-```typescript
-// types 설정
-declare global {
-  interface Window {
-    API_MOCK_AUTO_INIT?: any;
-    apiMockGuiInit?: Function;
-    apiMockGuiCleanup?: Function;
-  }
-}
-```
-
-## 📦 패키지 정보
-
-- **크기**: ~30KB (gzipped)
-- **의존성**: React, ReactDOM, Lucide React, MSW
-- **브라우저 지원**: Chrome, Firefox, Safari, Edge (최신 버전)
-- **Node.js**: 16+ 권장
-
-## 🤝 기여하기
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+**Q: API 요청이 Mock되지 않아요**
+1. Mock Server가 "Running" 상태인지 확인
+2. API Path가 정확히 일치하는지 확인
+3. HTTP Method가 일치하는지 확인
 
 ## 📄 라이선스
 
@@ -473,7 +231,6 @@ MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
 - **Issues**: [GitHub Issues](https://github.com/your-repo/api-mock-gui/issues)
 - **Documentation**: [Wiki](https://github.com/your-repo/api-mock-gui/wiki)
-- **Examples**: [Examples Repository](https://github.com/your-repo/api-mock-gui-examples)
 
 ---
 
