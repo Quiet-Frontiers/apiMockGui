@@ -20,7 +20,9 @@
     "build:css": "tailwindcss -i ./src/styles/globals.css -o ./dist/styles.css --minify",
     "dev": "vite",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build && node scripts/pre-publish-check.js",
+    "publish:check": "node scripts/pre-publish-check.js"
   },
   "keywords": [
     "api",
@@ -30,8 +32,19 @@
     "development",
     "msw"
   ],
-  "author": "Your Name",
+  "author": {
+    "name": "Hyeongmin Kim",
+    "email": "kwandong92@naver.com"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quiet-Frontiers/apiMockGui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Quiet-Frontiers/apiMockGui.git"
+  },
+  "homepage": "https://github.com/Quiet-Frontiers/apiMockGui#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"

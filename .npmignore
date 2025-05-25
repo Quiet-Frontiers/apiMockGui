@@ -1,0 +1,50 @@
+# Development files
+src/
+.cursor/
+public/
+node_modules/
+
+# Build configuration
+vite.config.ts
+tsconfig.json
+tailwind.config.js
+postcss.config.js
+
+# Development and testing files
+*.test.*
+*.spec.*
+__tests__/
+coverage/
+
+# Documentation and examples (README.md는 포함)
+docs/
+examples/
+screenshots/
+
+# Version control
+.git/
+.gitignore
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and temp files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.yarn/ 

@@ -229,8 +229,7 @@ MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
 ## 🙋‍♂️ 지원
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/api-mock-gui/issues)
-- **Documentation**: [Wiki](https://github.com/your-repo/api-mock-gui/wiki)
+- **Issues**: [GitHub Issues](https://github.com/Quiet-Frontiers/apiMockGui/issues)
 
 ---
 

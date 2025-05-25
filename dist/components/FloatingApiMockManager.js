@@ -13,6 +13,12 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
     const [isDragging, setIsDragging] = useState(false);
     const [editingApi, setEditingApi] = useState(null);
     const [editingCase, setEditingCase] = useState(null);
+    const [newApiForm, setNewApiForm] = useState({
+        name: '',
+        method: 'GET',
+        path: '',
+        description: ''
+    });
     const mockServerRef = useRef(null);
     const panelRef = useRef(null);
     const dragStartRef = useRef(null);
@@ -135,17 +141,53 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
         }
     };
     const FloatingButton = () => (_jsxs("button", { onClick: () => setIsOpen(true), className: `
-        flex items-center space-x-2 px-4 py-3 
+        relative flex items-center justify-center w-12 h-12
         ${isServerRunning ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'}
         text-white rounded-full shadow-lg transition-all duration-200
         hover:shadow-xl active:scale-95
-      `, style: getPositionStyle(), children: [buttonIcon || _jsx(Settings, { className: "w-5 h-5" }), buttonText && _jsx("span", { className: "text-sm font-medium", children: buttonText }), isServerRunning && (_jsx("div", { className: "w-2 h-2 bg-white rounded-full animate-pulse" }))] }));
+      `, style: { ...getPositionStyle(), pointerEvents: 'auto' }, title: isServerRunning ? 'API Mock Running' : 'API Mock Stopped', children: [buttonIcon || _jsx(Settings, { className: "w-5 h-5" }), isServerRunning && (_jsx("div", { className: "absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-white" }))] }));
+    const handleSaveNewApi = () => {
+        if (!newApiForm.name || !newApiForm.path) {
+            alert('Please fill in name and path');
+            return;
+        }
+        const newApi = {
+            name: newApiForm.name,
+            method: newApiForm.method,
+            path: newApiForm.path,
+            description: newApiForm.description,
+            cases: [{
+                    id: `case-${Date.now()}`,
+                    name: 'Default Response',
+                    description: 'Default response case',
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { success: true, message: 'Mock response' },
+                    isActive: true
+                }],
+            isEnabled: true
+        };
+        store.addApi(newApi);
+        setEditingApi(null);
+        setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
+    };
     const SimpleMockGui = () => (_jsxs("div", { className: "p-4 space-y-4", children: [_jsxs("div", { className: "bg-gray-50 p-4 rounded-lg", children: [_jsxs("div", { className: "flex items-center justify-between mb-2", children: [_jsx("h3", { className: "font-semibold", children: "Mock Server" }), _jsxs("div", { className: "flex items-center space-x-2", children: [isServerRunning ? (_jsx(Wifi, { className: "w-4 h-4 text-green-600" })) : (_jsx(WifiOff, { className: "w-4 h-4 text-gray-400" })), _jsx("span", { className: `text-sm ${isServerRunning ? 'text-green-600' : 'text-gray-500'}`, children: isServerRunning ? 'Running' : 'Stopped' })] })] }), _jsxs("div", { className: "flex items-center space-x-2", children: [_jsxs("button", { onClick: isServerRunning ? handleStopServer : handleStartServer, className: `
               flex items-center space-x-2 px-3 py-1.5 rounded text-sm font-medium
               ${isServerRunning
                                     ? 'bg-red-600 hover:bg-red-700 text-white'
                                     : 'bg-green-600 hover:bg-green-700 text-white'}
-            `, children: [isServerRunning ? _jsx(Square, { className: "w-4 h-4" }) : _jsx(Play, { className: "w-4 h-4" }), isServerRunning ? 'Stop' : 'Start'] }), handlerCount > 0 && (_jsxs("span", { className: "text-sm text-gray-600", children: [handlerCount, " handlers active"] }))] }), serverError && (_jsx("div", { className: "mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm", children: serverError }))] }), _jsxs("div", { children: [_jsxs("div", { className: "flex items-center justify-between mb-3", children: [_jsxs("h3", { className: "font-semibold", children: ["Mock APIs (", store.apis.length, ")"] }), _jsxs("button", { onClick: () => setEditingApi({
+            `, children: [isServerRunning ? _jsx(Square, { className: "w-4 h-4" }) : _jsx(Play, { className: "w-4 h-4" }), isServerRunning ? 'Stop' : 'Start'] }), handlerCount > 0 && (_jsxs("span", { className: "text-sm text-gray-600", children: [handlerCount, " handlers active"] }))] }), serverError && (_jsx("div", { className: "mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm", children: serverError }))] }), editingApi && (_jsxs("div", { className: "bg-blue-50 border border-blue-200 rounded-lg p-4", children: [_jsxs("div", { className: "flex items-center justify-between mb-3", children: [_jsx("h3", { className: "font-semibold text-blue-800", children: editingApi.id ? 'Edit API' : 'Add New API' }), _jsx("button", { onClick: () => setEditingApi(null), className: "text-blue-600 hover:text-blue-800", children: _jsx(X, { className: "w-4 h-4" }) })] }), _jsxs("div", { className: "space-y-3", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Name" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.name : newApiForm.name, onChange: (e) => editingApi.id
+                                            ? setEditingApi({ ...editingApi, name: e.target.value })
+                                            : setNewApiForm({ ...newApiForm, name: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 rounded text-sm", placeholder: "e.g. Get Users" })] }), _jsxs("div", { className: "grid grid-cols-2 gap-3", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Method" }), _jsxs("select", { value: editingApi.id ? editingApi.method : newApiForm.method, onChange: (e) => editingApi.id
+                                                    ? setEditingApi({ ...editingApi, method: e.target.value })
+                                                    : setNewApiForm({ ...newApiForm, method: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 rounded text-sm", children: [_jsx("option", { value: "GET", children: "GET" }), _jsx("option", { value: "POST", children: "POST" }), _jsx("option", { value: "PUT", children: "PUT" }), _jsx("option", { value: "DELETE", children: "DELETE" }), _jsx("option", { value: "PATCH", children: "PATCH" })] })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Path" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.path : newApiForm.path, onChange: (e) => editingApi.id
+                                                    ? setEditingApi({ ...editingApi, path: e.target.value })
+                                                    : setNewApiForm({ ...newApiForm, path: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 rounded text-sm", placeholder: "/api/users" })] })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Description" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.description || '' : newApiForm.description, onChange: (e) => editingApi.id
+                                            ? setEditingApi({ ...editingApi, description: e.target.value })
+                                            : setNewApiForm({ ...newApiForm, description: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 rounded text-sm", placeholder: "Optional description" })] }), _jsxs("div", { className: "flex space-x-2 pt-2", children: [_jsxs("button", { onClick: editingApi.id ? () => {
+                                            store.updateApi(editingApi.id, editingApi);
+                                            setEditingApi(null);
+                                        } : handleSaveNewApi, className: "px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm", children: [editingApi.id ? 'Update' : 'Add', " API"] }), _jsx("button", { onClick: () => setEditingApi(null), className: "px-4 py-1.5 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded text-sm", children: "Cancel" })] })] })] })), _jsxs("div", { children: [_jsxs("div", { className: "flex items-center justify-between mb-3", children: [_jsxs("h3", { className: "font-semibold", children: ["Mock APIs (", store.apis.length, ")"] }), _jsxs("button", { onClick: () => setEditingApi({
                                     id: '',
                                     name: '',
                                     method: 'GET',
@@ -155,14 +197,14 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
                                     isEnabled: true,
                                     createdAt: new Date().toISOString(),
                                     updatedAt: new Date().toISOString()
-                                }), className: "flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm", children: [_jsx(Plus, { className: "w-4 h-4" }), _jsx("span", { children: "Add API" })] })] }), _jsx("div", { className: "space-y-2 max-h-64 overflow-y-auto", children: store.apis.map((api) => (_jsxs("div", { className: "bg-white border border-gray-200 rounded-lg p-3", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { className: "flex items-center space-x-3", children: [_jsx("span", { className: `
-                    px-2 py-1 rounded text-xs font-medium
-                    ${api.method === 'GET' ? 'bg-blue-100 text-blue-800' :
+                                }), className: "flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm", children: [_jsx(Plus, { className: "w-4 h-4" }), _jsx("span", { children: "Add API" })] })] }), _jsx("div", { className: "space-y-2 max-h-64 overflow-y-auto", children: store.apis.length === 0 ? (_jsxs("div", { className: "text-center py-8 text-gray-500", children: [_jsx(Settings, { className: "w-8 h-8 mx-auto mb-2 text-gray-400" }), _jsx("p", { children: "No APIs configured yet" }), _jsx("p", { className: "text-sm", children: "Click \"Add API\" to get started" })] })) : (store.apis.map((api) => (_jsxs("div", { className: "bg-white border border-gray-200 rounded-lg p-3", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { className: "flex items-center space-x-3", children: [_jsx("span", { className: `
+                      px-2 py-1 rounded text-xs font-medium
+                      ${api.method === 'GET' ? 'bg-blue-100 text-blue-800' :
                                                         api.method === 'POST' ? 'bg-green-100 text-green-800' :
                                                             api.method === 'PUT' ? 'bg-yellow-100 text-yellow-800' :
                                                                 api.method === 'DELETE' ? 'bg-red-100 text-red-800' :
                                                                     'bg-gray-100 text-gray-800'}
-                  `, children: api.method }), _jsxs("div", { children: [_jsx("div", { className: "font-medium text-sm", children: api.name }), _jsx("div", { className: "text-xs text-gray-500", children: api.path })] })] }), _jsxs("div", { className: "flex items-center space-x-1", children: [_jsx("button", { onClick: () => setEditingApi(api), className: "p-1 hover:bg-gray-100 rounded", children: _jsx(Edit, { className: "w-4 h-4 text-gray-500" }) }), _jsx("button", { onClick: () => store.deleteApi(api.id), className: "p-1 hover:bg-gray-100 rounded", children: _jsx(Trash2, { className: "w-4 h-4 text-red-500" }) })] })] }), api.cases.length > 0 && (_jsxs("div", { className: "mt-2 text-xs text-gray-500", children: [api.cases.length, " response case(s)"] }))] }, api.id))) })] })] }));
+                    `, children: api.method }), _jsxs("div", { children: [_jsx("div", { className: "font-medium text-sm", children: api.name }), _jsx("div", { className: "text-xs text-gray-500", children: api.path })] })] }), _jsxs("div", { className: "flex items-center space-x-1", children: [_jsx("button", { onClick: () => setEditingApi(api), className: "p-1 hover:bg-gray-100 rounded", children: _jsx(Edit, { className: "w-4 h-4 text-gray-500" }) }), _jsx("button", { onClick: () => store.deleteApi(api.id), className: "p-1 hover:bg-gray-100 rounded", children: _jsx(Trash2, { className: "w-4 h-4 text-red-500" }) })] })] }), api.cases.length > 0 && (_jsxs("div", { className: "mt-2 text-xs text-gray-500", children: [api.cases.length, " response case(s)"] }))] }, api.id)))) })] })] }));
     const FloatingPanel = () => (_jsxs("div", { ref: panelRef, className: "bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden", style: {
             ...getPositionStyle(),
             width: panelWidth,
