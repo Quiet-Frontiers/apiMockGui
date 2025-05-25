@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2 } from 'lucide-react';
-import { ApiMockManagerProps, MockApi } from '../types';
-import { ApiMockGui } from './ApiMockGui';
+import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2 } from 'lucide-react';
+import { ApiMockManagerProps, MockApi, MockResponseCase, HttpMethod, HttpStatus } from '../types';
 import { MockServer, createMockServer } from '../msw/mockServer';
+import { useMockApiStore } from '../hooks/useMockApiStore';
 
 interface FloatingApiMockManagerProps extends ApiMockManagerProps {
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -35,10 +35,20 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   const [handlerCount, setHandlerCount] = useState(0);
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [editingApi, setEditingApi] = useState<MockApi | null>(null);
+  const [editingCase, setEditingCase] = useState<{ api: MockApi; case: MockResponseCase } | null>(null);
+  const [newApiForm, setNewApiForm] = useState({ 
+    name: '', 
+    method: 'GET' as HttpMethod, 
+    path: '', 
+    description: '' 
+  });
   
   const mockServerRef = useRef<MockServer | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const store = useMockApiStore();
 
   // MockServer 인스턴스 초기화
   useEffect(() => {
@@ -55,16 +65,16 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   }, [autoStart]);
 
   // API 설정 변경 시 핸들러 업데이트
-  const handleConfigChange = (apis: MockApi[]) => {
+  useEffect(() => {
     if (mockServerRef.current) {
-      mockServerRef.current.updateHandlers(apis);
+      mockServerRef.current.updateHandlers(store.apis);
       setHandlerCount(mockServerRef.current.getHandlerCount());
     }
     
     if (guiProps.onConfigChange) {
-      guiProps.onConfigChange(apis);
+      guiProps.onConfigChange(store.apis);
     }
-  };
+  }, [store.apis]);
 
   const handleStartServer = async () => {
     if (!mockServerRef.current) return;
@@ -175,19 +185,274 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
     <button
       onClick={() => setIsOpen(true)}
       className={`
-        flex items-center space-x-2 px-4 py-3 
+        relative flex items-center justify-center w-12 h-12
         ${isServerRunning ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'}
         text-white rounded-full shadow-lg transition-all duration-200
         hover:shadow-xl active:scale-95
       `}
-      style={getPositionStyle()}
+      style={{ ...getPositionStyle(), pointerEvents: 'auto' }}
+      title={isServerRunning ? 'API Mock Running' : 'API Mock Stopped'}
     >
       {buttonIcon || <Settings className="w-5 h-5" />}
-      {buttonText && <span className="text-sm font-medium">{buttonText}</span>}
       {isServerRunning && (
-        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-white" />
       )}
     </button>
+  );
+
+  const handleSaveNewApi = () => {
+    if (!newApiForm.name || !newApiForm.path) {
+      alert('Please fill in name and path');
+      return;
+    }
+
+    const newApi = {
+      name: newApiForm.name,
+      method: newApiForm.method,
+      path: newApiForm.path,
+      description: newApiForm.description,
+      cases: [{
+        id: `case-${Date.now()}`,
+        name: 'Default Response',
+        description: 'Default response case',
+        status: 200 as HttpStatus,
+        headers: { 'Content-Type': 'application/json' },
+        body: { success: true, message: 'Mock response' },
+        isActive: true
+      }],
+      isEnabled: true
+    };
+
+    store.addApi(newApi);
+    setEditingApi(null);
+    setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
+  };
+
+  const SimpleMockGui = () => (
+    <div className="p-4 space-y-4">
+      {/* Server Controls */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold">Mock Server</h3>
+          <div className="flex items-center space-x-2">
+            {isServerRunning ? (
+              <Wifi className="w-4 h-4 text-green-600" />
+            ) : (
+              <WifiOff className="w-4 h-4 text-gray-400" />
+            )}
+            <span className={`text-sm ${isServerRunning ? 'text-green-600' : 'text-gray-500'}`}>
+              {isServerRunning ? 'Running' : 'Stopped'}
+            </span>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={isServerRunning ? handleStopServer : handleStartServer}
+            className={`
+              flex items-center space-x-2 px-3 py-1.5 rounded text-sm font-medium
+              ${isServerRunning 
+                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                : 'bg-green-600 hover:bg-green-700 text-white'
+              }
+            `}
+          >
+            {isServerRunning ? <Square className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            {isServerRunning ? 'Stop' : 'Start'}
+          </button>
+          
+          {handlerCount > 0 && (
+            <span className="text-sm text-gray-600">
+              {handlerCount} handlers active
+            </span>
+          )}
+        </div>
+        
+        {serverError && (
+          <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
+            {serverError}
+          </div>
+        )}
+      </div>
+
+      {/* Add/Edit API Form */}
+      {editingApi && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-blue-800">
+              {editingApi.id ? 'Edit API' : 'Add New API'}
+            </h3>
+            <button
+              onClick={() => setEditingApi(null)}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                value={editingApi.id ? editingApi.name : newApiForm.name}
+                onChange={(e) => editingApi.id 
+                  ? setEditingApi({...editingApi, name: e.target.value})
+                  : setNewApiForm({...newApiForm, name: e.target.value})
+                }
+                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm"
+                placeholder="e.g. Get Users"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Method</label>
+                <select
+                  value={editingApi.id ? editingApi.method : newApiForm.method}
+                  onChange={(e) => editingApi.id
+                    ? setEditingApi({...editingApi, method: e.target.value as HttpMethod})
+                    : setNewApiForm({...newApiForm, method: e.target.value as HttpMethod})
+                  }
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm"
+                >
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                  <option value="PATCH">PATCH</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Path</label>
+                <input
+                  type="text"
+                  value={editingApi.id ? editingApi.path : newApiForm.path}
+                  onChange={(e) => editingApi.id
+                    ? setEditingApi({...editingApi, path: e.target.value})
+                    : setNewApiForm({...newApiForm, path: e.target.value})
+                  }
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm"
+                  placeholder="/api/users"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <input
+                type="text"
+                value={editingApi.id ? editingApi.description || '' : newApiForm.description}
+                onChange={(e) => editingApi.id
+                  ? setEditingApi({...editingApi, description: e.target.value})
+                  : setNewApiForm({...newApiForm, description: e.target.value})
+                }
+                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm"
+                placeholder="Optional description"
+              />
+            </div>
+            
+            <div className="flex space-x-2 pt-2">
+              <button
+                onClick={editingApi.id ? () => {
+                  store.updateApi(editingApi.id, editingApi);
+                  setEditingApi(null);
+                } : handleSaveNewApi}
+                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+              >
+                {editingApi.id ? 'Update' : 'Add'} API
+              </button>
+              <button
+                onClick={() => setEditingApi(null)}
+                className="px-4 py-1.5 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* API List */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Mock APIs ({store.apis.length})</h3>
+          <button
+            onClick={() => setEditingApi({
+              id: '',
+              name: '',
+              method: 'GET' as HttpMethod,
+              path: '',
+              description: '',
+              cases: [],
+              isEnabled: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            })}
+            className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add API</span>
+          </button>
+        </div>
+
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {store.apis.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Settings className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+              <p>No APIs configured yet</p>
+              <p className="text-sm">Click "Add API" to get started</p>
+            </div>
+          ) : (
+            store.apis.map((api) => (
+              <div key={api.id} className="bg-white border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className={`
+                      px-2 py-1 rounded text-xs font-medium
+                      ${api.method === 'GET' ? 'bg-blue-100 text-blue-800' :
+                        api.method === 'POST' ? 'bg-green-100 text-green-800' :
+                        api.method === 'PUT' ? 'bg-yellow-100 text-yellow-800' :
+                        api.method === 'DELETE' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }
+                    `}>
+                      {api.method}
+                    </span>
+                    <div>
+                      <div className="font-medium text-sm">{api.name}</div>
+                      <div className="text-xs text-gray-500">{api.path}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => setEditingApi(api)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Edit className="w-4 h-4 text-gray-500" />
+                    </button>
+                    <button
+                      onClick={() => store.deleteApi(api.id)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  </div>
+                </div>
+                
+                {api.cases.length > 0 && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    {api.cases.length} response case(s)
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
 
   const FloatingPanel = () => (
@@ -198,95 +463,38 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
         ...getPositionStyle(),
         width: panelWidth,
         height: isMinimized ? 'auto' : panelHeight,
-        maxWidth: '90vw',
         maxHeight: '90vh'
       }}
     >
       {/* Header */}
-      <div 
-        className={`bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center justify-between ${draggable ? 'cursor-move' : ''}`}
-        onMouseDown={handleMouseDown}
-      >
+      <div className="bg-gray-50 border-b border-gray-200 p-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2">
-            {isServerRunning ? (
-              <Wifi className="w-4 h-4 text-green-600" />
-            ) : (
-              <WifiOff className="w-4 h-4 text-gray-400" />
-            )}
-            <h3 className="font-semibold text-gray-900">API Mock Manager</h3>
-          </div>
-          
-          {isServerRunning && (
-            <div className="text-xs text-gray-600 bg-gray-200 px-2 py-1 rounded">
-              {handlerCount} active
-            </div>
-          )}
+          <Settings className="w-5 h-5 text-gray-600" />
+          <h2 className="font-semibold text-gray-800">API Mock Manager</h2>
         </div>
         
         <div className="flex items-center space-x-2">
-          {/* Server Control */}
-          <button
-            onClick={isServerRunning ? handleStopServer : handleStartServer}
-            className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium ${
-              isServerRunning
-                ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                : 'bg-green-100 text-green-700 hover:bg-green-200'
-            }`}
-          >
-            {isServerRunning ? (
-              <>
-                <Square className="w-3 h-3" />
-                <span>Stop</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3 h-3" />
-                <span>Start</span>
-              </>
-            )}
-          </button>
-
-          {/* Minimize Button */}
           {minimizable && (
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded"
+              className="p-1 hover:bg-gray-200 rounded"
             >
-              {isMinimized ? (
-                <Maximize2 className="w-4 h-4" />
-              ) : (
-                <Minimize2 className="w-4 h-4" />
-              )}
+              {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
             </button>
           )}
-
-          {/* Close Button */}
           <button
             onClick={() => setIsOpen(false)}
-            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded"
+            className="p-1 hover:bg-gray-200 rounded"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Server Error */}
-      {serverError && (
-        <div className="bg-red-50 border-b border-red-200 px-4 py-2">
-          <div className="text-sm text-red-600">
-            <strong>Error:</strong> {serverError}
-          </div>
-        </div>
-      )}
-
       {/* Content */}
       {!isMinimized && (
-        <div className="overflow-hidden" style={{ height: 'calc(100% - 60px)' }}>
-          <ApiMockGui
-            {...guiProps}
-            onConfigChange={handleConfigChange}
-          />
+        <div className="overflow-y-auto" style={{ height: 'calc(100% - 60px)' }}>
+          <SimpleMockGui />
         </div>
       )}
     </div>

@@ -4,15 +4,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
-**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 직관적인 GUI 라이브러리입니다. MSW(Mock Service Worker)를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
+**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 초간단 라이브러리입니다. 설치만 하면 자동으로 floating button이 나타나며, MSW(Mock Service Worker)를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
 
 ## ✨ 주요 특징
 
-- 🎯 **One-Line Import**: 단 한 줄의 import로 즉시 활성화
-- 🪟 **팝업 창 GUI**: 별도의 팝업 창에서 API Mock 관리
+- 🚀 **Zero Config**: 라이브러리 import만으로 즉시 활성화
+- 🎯 **자동 Floating Button**: 개발 환경에서 자동으로 우측 하단에 버튼 생성
 - 📡 **MSW 통합**: Service Worker를 통한 실제 네트워크 요청 차단
 - 🔄 **실시간 제어**: Mock 서버 시작/중지 및 설정 변경
-- 🎮 **다양한 사용 모드**: 자동 초기화, Floating Button, 인라인 컴포넌트
 - 🔧 **개발자 친화적**: TypeScript 지원 및 직관적인 API
 - 🌐 **프레임워크 무관**: React, Next.js, Vue.js 등 다양한 환경 지원
 
@@ -30,50 +29,42 @@ npm install api-mock-gui
 npx msw init public/ --save
 ```
 
-### 3. 자동 초기화 (가장 간단한 방법)
+### 3. 사용하기 (이게 전부입니다!)
 
 ```typescript
-// App.tsx 또는 index.tsx 최상단에 추가
-import 'api-mock-gui/auto';
+// App.tsx 또는 index.tsx에 추가
+import 'api-mock-gui';
 
 function App() {
   return <div>Your App</div>;
 }
 ```
 
-이것만으로 우측 하단에 floating button이 나타나며, 클릭하면 팝업 창으로 API Mock GUI가 열립니다! 🎉
+이것만으로 우측 하단에 floating button이 자동으로 나타납니다! 🎉
 
 ## 📋 사용 방법
 
-### 🎯 자동 초기화 모드 (권장)
+### 🎯 기본 사용법 (권장)
 
-개발 환경에서 자동으로 floating button을 표시하는 가장 간단한 방법입니다.
+라이브러리를 import하면 자동으로 floating button이 나타납니다.
 
 ```typescript
-import 'api-mock-gui/auto';
+import 'api-mock-gui';
 ```
 
 **특징:**
 - 개발 환경(localhost, 127.0.0.1 등) 자동 감지
 - 우측 하단에 floating button 자동 표시
-- 클릭 시 별도 팝업 창으로 GUI 열림
+- 클릭하면 Mock API 관리 패널이 열림
 - 프로덕션에서는 자동으로 비활성화
 
-### 🎮 수동 제어
+### 🎮 수동 제어 (선택사항)
 
-```typescript
-import { initAutoApiMock, cleanupAutoApiMock } from 'api-mock-gui';
+브라우저 콘솔에서 직접 제어할 수 있습니다.
 
-// 수동 활성화
-initAutoApiMock({
-  position: 'bottom-right',
-  buttonText: 'API Mock',
-  autoStart: true,
-  development: true
-});
-
-// 정리
-cleanupAutoApiMock();
+```javascript
+// 브라우저 콘솔에서
+window.cleanupApiMockGui(); // 완전히 제거
 ```
 
 ### 🪟 팝업 모드 컴포넌트

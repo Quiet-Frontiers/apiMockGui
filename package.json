@@ -10,10 +10,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./auto": {
-      "import": "./dist/auto.js",
-      "types": "./dist/auto.d.ts"
-    },
     "./dist/styles.css": "./dist/styles.css"
   },
   "files": [
