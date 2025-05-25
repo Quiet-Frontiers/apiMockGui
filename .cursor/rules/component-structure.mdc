@@ -1,5 +1,61 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Component Structure & Hierarchy
+
+## Core Components
+
+### Main GUI Components
+- **ApiMockGui**: [ApiMockGui.tsx](mdc:src/components/ApiMockGui.tsx)
+  - Root component for the mock API interface
+  - Contains ApiList and modal management
+  - Handles import/export functionality
+
+- **ApiList**: [ApiList.tsx](mdc:src/components/ApiList.tsx)
+  - Displays list of configured APIs
+  - Shows API method, path, name, and response case count
+  - Provides edit/delete actions per API
+
+### Editor Components
+- **ApiEditor**: [ApiEditor.tsx](mdc:src/components/ApiEditor.tsx)
+  - Form for creating/editing API configurations
+  - Fields: method, path, name, description
+  - Validation and save/cancel actions
+
+- **ResponseCaseEditor**: [ResponseCaseEditor.tsx](mdc:src/components/ResponseCaseEditor.tsx)
+  - Complex form for managing response cases
+  - Fields: status code, headers, JSON body, delay, active state
+  - JSON syntax validation and formatting
+
+### Manager Components
+- **ApiMockManager**: [ApiMockManager.tsx](mdc:src/components/ApiMockManager.tsx)
+  - Combines ApiMockGui with MSW server controls
+  - Shows server status and handler count
+  - Start/stop server functionality
+
+- **PopupApiMockManager**: [PopupApiMockManager.tsx](mdc:src/components/PopupApiMockManager.tsx)
+  - Modal popup version of ApiMockManager
+  - Overlay for existing applications
+  - Draggable and resizable
+
+- **FloatingApiMockManager**: [FloatingApiMockManager.tsx](mdc:src/components/FloatingApiMockManager.tsx)
+  - Floating window version
+  - Minimizable and moveable
+  - Non-intrusive integration
+
+### Auto-initialization
+- **AutoApiMockInit**: [AutoApiMockInit.tsx](mdc:src/components/AutoApiMockInit.tsx)
+  - Automatic setup component
+  - Detects environment and initializes MSW
+  - Minimal configuration required
+
+## Component Data Flow
+1. **useMockApiStore**: [useMockApiStore.ts](mdc:src/hooks/useMockApiStore.ts) - Central state management
+2. **MockServer**: [mockServer.ts](mdc:src/msw/mockServer.ts) - MSW integration class
+3. **setupMsw**: [setupMsw.ts](mdc:src/msw/setupMsw.ts) - MSW configuration utilities
+
+## Styling
+All components use Tailwind CSS classes with custom component styles defined in the source files.
+

@@ -1,5 +1,105 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Types & Interfaces
+
+## Core Type Definitions
+**File**: [types/index.ts](mdc:src/types/index.ts)
+
+### HTTP Types
+```typescript
+HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+HttpStatus = 200 | 201 | 400 | 401 | 403 | 404 | 500 | 502 | 503
+```
+
+### Core Data Structures
+
+#### MockResponseCase
+```typescript
+interface MockResponseCase {
+  id: string;           // Unique identifier
+  name: string;         // Case name/description
+  statusCode: HttpStatus; // HTTP status code
+  headers: Record<string, string>; // Response headers
+  body: any;           // Response body (JSON)
+  delay: number;       // Response delay in ms
+  isActive: boolean;   // Whether case is currently active
+}
+```
+
+#### MockApi
+```typescript
+interface MockApi {
+  id: string;                    // Unique identifier
+  method: HttpMethod;            // HTTP method
+  path: string;                 // API endpoint path
+  name: string;                 // Human-readable name
+  description?: string;         // Optional description
+  responseCases: MockResponseCase[]; // Array of response scenarios
+}
+```
+
+### Store Interface
+#### MockApiStore
+```typescript
+interface MockApiStore {
+  apis: MockApi[];              // All configured APIs
+  addApi: (api: Omit<MockApi, 'id'>) => string;
+  updateApi: (id: string, api: Partial<MockApi>) => void;
+  deleteApi: (id: string) => void;
+  addResponseCase: (apiId: string, case: Omit<MockResponseCase, 'id'>) => void;
+  updateResponseCase: (apiId: string, caseId: string, case: Partial<MockResponseCase>) => void;
+  deleteResponseCase: (apiId: string, caseId: string) => void;
+  exportConfig: () => string;   // Export as JSON string
+  importConfig: (config: string) => void; // Import from JSON
+  clearAll: () => void;         // Clear all data
+}
+```
+
+### MSW Integration Types
+
+#### MockServerConfig
+```typescript
+interface MockServerConfig {
+  baseUrl: string;              // API base URL to intercept
+  environment?: 'development' | 'production' | 'testing';
+  enableLogging?: boolean;      // Console logging
+  onRequest?: (req: any) => void;  // Request callback
+  onResponse?: (res: any) => void; // Response callback
+}
+```
+
+#### MockServerInstance
+```typescript
+interface MockServerInstance {
+  start: () => Promise<void>;   // Start MSW
+  stop: () => Promise<void>;    // Stop MSW
+  updateHandlers: (apis: MockApi[]) => void; // Update request handlers
+  getHandlerCount: () => number; // Get active handler count
+  isRunning: boolean;           // Server status
+}
+```
+
+### Component Props
+
+#### ApiMockManagerProps
+```typescript
+interface ApiMockManagerProps {
+  baseUrl: string;              // Required API base URL
+  config?: MockServerConfig;    // Optional MSW configuration
+  className?: string;           // CSS classes
+  onServerStart?: () => void;   // Server start callback
+  onServerStop?: () => void;    // Server stop callback
+}
+```
+
+## State Management
+The **useMockApiStore** hook ([useMockApiStore.ts](mdc:src/hooks/useMockApiStore.ts)) implements the MockApiStore interface using React state and localStorage for persistence.
+
+## Type Safety
+- All components are fully typed with TypeScript
+- Strict type checking enabled in [tsconfig.json](mdc:tsconfig.json)
+- Export types for external library usage
+

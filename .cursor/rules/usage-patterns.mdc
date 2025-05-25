@@ -1,5 +1,267 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Usage Patterns & Integration Examples
+
+## Component Usage Patterns
+
+### Basic API Mocking GUI
+```typescript
+import { ApiMockGui } from 'api-mock-gui';
+
+function App() {
+  return (
+    <div>
+      <ApiMockGui />
+    </div>
+  );
+}
+```
+
+### Full MSW Integration
+```typescript
+import { ApiMockManager } from 'api-mock-gui';
+
+function App() {
+  return (
+    <ApiMockManager 
+      baseUrl="https://api.example.com"
+      environment="development"
+      enableLogging={true}
+      onServerStart={() => console.log('Mock server started')}
+      onServerStop={() => console.log('Mock server stopped')}
+    />
+  );
+}
+```
+
+### Popup Overlay (for existing apps)
+```typescript
+import { PopupApiMockManager } from 'api-mock-gui';
+
+function ExistingApp() {
+  const [showMockManager, setShowMockManager] = useState(false);
+  
+  return (
+    <div>
+      {/* Your existing app */}
+      <button onClick={() => setShowMockManager(true)}>
+        Open Mock Manager
+      </button>
+      
+      {showMockManager && (
+        <PopupApiMockManager 
+          baseUrl="https://api.example.com"
+          onClose={() => setShowMockManager(false)}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+### Floating Window (minimal intrusion)
+```typescript
+import { FloatingApiMockManager } from 'api-mock-gui';
+
+function App() {
+  return (
+    <div>
+      {/* Your app content */}
+      <FloatingApiMockManager 
+        baseUrl="https://api.example.com"
+        defaultPosition={{ x: 20, y: 20 }}
+        defaultMinimized={true}
+      />
+    </div>
+  );
+}
+```
+
+### Auto-initialization (minimal setup)
+```typescript
+import { AutoApiMockInit } from 'api-mock-gui/auto';
+
+function App() {
+  return (
+    <div>
+      <AutoApiMockInit baseUrl="https://api.example.com" />
+      {/* Your app components */}
+    </div>
+  );
+}
+```
+
+## Framework-Specific Integration
+
+### Next.js (Client-side only)
+```typescript
+import dynamic from 'next/dynamic';
+
+const ApiMockManager = dynamic(
+  () => import('api-mock-gui').then(mod => mod.ApiMockManager),
+  { ssr: false }
+);
+
+export default function Page() {
+  return <ApiMockManager baseUrl="https://api.example.com" />;
+}
+```
+
+### Vue.js Wrapper
+```vue
+<template>
+  <div ref="mockContainer"></div>
+</template>
+
+<script>
+import { ApiMockManager } from 'api-mock-gui';
+import { createApp } from 'vue';
+
+export default {
+  mounted() {
+    createApp({
+      render: () => h(ApiMockManager, {
+        baseUrl: 'https://api.example.com'
+      })
+    }).mount(this.$refs.mockContainer);
+  }
+}
+</script>
+```
+
+## Environment-Specific Configurations
+
+### Development Environment
+```typescript
+<ApiMockManager 
+  baseUrl="https://api.example.com"
+  environment="development"
+  enableLogging={true}
+  config={{
+    onRequest: (req) => console.log('Mock request:', req),
+    onResponse: (res) => console.log('Mock response:', res)
+  }}
+/>
+```
+
+### Production/Staging (Conditional)
+```typescript
+const showMockManager = process.env.NODE_ENV !== 'production' || 
+                       process.env.REACT_APP_ENABLE_MOCKS === 'true';
+
+return (
+  <div>
+    {showMockManager && (
+      <FloatingApiMockManager 
+        baseUrl={process.env.REACT_APP_API_BASE_URL}
+        defaultMinimized={true}
+      />
+    )}
+    {/* Your app */}
+  </div>
+);
+```
+
+### Testing Environment
+```typescript
+import { setupServer } from 'msw/node';
+import { MockServer } from 'api-mock-gui';
+
+// In test setup
+const mockServer = new MockServer({
+  baseUrl: 'https://api.example.com',
+  environment: 'testing'
+});
+
+beforeAll(() => mockServer.start());
+afterAll(() => mockServer.stop());
+```
+
+## Custom Hook Integration
+
+### Direct Store Access
+```typescript
+import { useMockApiStore } from 'api-mock-gui';
+
+function CustomMockInterface() {
+  const { apis, addApi, updateApi, deleteApi } = useMockApiStore();
+  
+  // Build custom UI using the store
+  return (
+    <div>
+      {apis.map(api => (
+        <div key={api.id}>
+          {api.method} {api.path}
+          <button onClick={() => deleteApi(api.id)}>Delete</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Service Worker Prerequisites
+
+### Browser Environment Setup
+```bash
+# Initialize MSW service worker
+npx msw init public/ --save
+
+# Ensure public/mockServiceWorker.js exists
+# Add to .gitignore if needed
+```
+
+### Vite Configuration (if needed)
+```typescript
+// vite.config.ts
+export default {
+  // ... other config
+  server: {
+    fs: {
+      allow: ['..'] // Allow MSW to access service worker
+    }
+  }
+}
+```
+
+## Error Handling Patterns
+
+### Server Status Monitoring
+```typescript
+import { ApiMockManager } from 'api-mock-gui';
+
+function App() {
+  const [serverError, setServerError] = useState(null);
+  
+  return (
+    <ApiMockManager 
+      baseUrl="https://api.example.com"
+      onServerStart={() => setServerError(null)}
+      onServerStop={() => setServerError('Server stopped')}
+    />
+  );
+}
+```
+
+## Data Persistence
+
+### Export/Import Configuration
+```typescript
+const { exportConfig, importConfig } = useMockApiStore();
+
+// Export current configuration
+const saveConfig = () => {
+  const config = exportConfig();
+  localStorage.setItem('mockApiBackup', config);
+};
+
+// Import saved configuration
+const loadConfig = () => {
+  const saved = localStorage.getItem('mockApiBackup');
+  if (saved) importConfig(saved);
+};
+```
+

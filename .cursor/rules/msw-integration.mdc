@@ -1,5 +1,88 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# MSW (Mock Service Worker) Integration
+
+## Core MSW Files
+
+### MockServer Class
+- **File**: [mockServer.ts](mdc:src/msw/mockServer.ts)
+- **Purpose**: Main class for managing MSW instance and request handlers
+- **Key Methods**:
+  - `start()`: Initialize MSW in browser/node environment
+  - `stop()`: Shutdown MSW gracefully
+  - `updateHandlers()`: Sync handlers with current mock API configuration
+  - `getHandlerCount()`: Get number of active request handlers
+
+### MSW Setup Utilities
+- **File**: [setupMsw.ts](mdc:src/msw/setupMsw.ts)
+- **Purpose**: Configuration helpers and environment detection
+- **Key Functions**:
+  - `createMswConfig()`: Generate MSW configuration from mock APIs
+  - `validateMswSetup()`: Check MSW prerequisites
+  - `getEnvironmentPreset()`: Get environment-specific settings
+
+## Integration Flow
+
+### 1. Initialization
+```typescript
+// Automatic setup via AutoApiMockInit component
+// Or manual setup via ApiMockManager
+```
+
+### 2. Handler Registration
+- Mock APIs are converted to MSW request handlers
+- Each API path becomes a REST handler
+- Response cases determine handler behavior
+
+### 3. Request Interception
+- MSW intercepts HTTP requests matching configured paths
+- Returns mock responses based on active response cases
+- Supports delays, custom headers, and different status codes
+
+## Environment Support
+
+### Browser Environment
+- Uses `setupWorker` from `msw/browser`
+- Requires service worker registration: `npx msw init public/ --save`
+- Intercepts fetch/XMLHttpRequest calls
+
+### Node Environment
+- Uses `setupServer` from `msw/node`
+- Intercepts Node.js HTTP requests
+- Useful for testing and server-side mocking
+
+## Configuration Options
+
+### MockServerConfig Interface
+- `baseUrl`: API base URL to intercept
+- `environment`: 'development' | 'production' | 'testing'
+- `enableLogging`: Console logging for intercepted requests
+- `onRequest`: Callback for request events
+- `onResponse`: Callback for response events
+
+## Usage Patterns
+
+### With ApiMockManager
+```typescript
+<ApiMockManager 
+  baseUrl="https://api.example.com"
+  environment="development"
+  enableLogging={true}
+/>
+```
+
+### Auto-initialization
+```typescript
+<AutoApiMockInit 
+  baseUrl="https://api.example.com"
+/>
+```
+
+## Service Worker Setup
+- Run `npx msw init public/ --save` in project root
+- Generates `mockServiceWorker.js` in public directory
+- Required for browser environment MSW functionality
+

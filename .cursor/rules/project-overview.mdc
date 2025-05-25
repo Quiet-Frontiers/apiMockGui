@@ -1,5 +1,37 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# API Mock GUI Library - Project Overview
+
+## Purpose
+This is a React TypeScript library for creating API response mocking GUIs with real request interception capabilities using MSW (Mock Service Worker).
+
+## Core Architecture
+
+### Entry Points
+- Main library entry: [index.ts](mdc:src/index.ts) - exports all public components and utilities
+- Development demo: [App.tsx](mdc:src/App.tsx) - shows usage examples
+- Auto-initialization utility: [auto.ts](mdc:src/auto.ts) - enables automatic setup
+
+### Key Components
+- **ApiMockGui**: [ApiMockGui.tsx](mdc:src/components/ApiMockGui.tsx) - Main GUI component for managing mock APIs
+- **ApiMockManager**: [ApiMockManager.tsx](mdc:src/components/ApiMockManager.tsx) - Combines GUI with MSW server control
+- **PopupApiMockManager**: [PopupApiMockManager.tsx](mdc:src/components/PopupApiMockManager.tsx) - Popup version for overlaying on existing apps
+- **FloatingApiMockManager**: [FloatingApiMockManager.tsx](mdc:src/components/FloatingApiMockManager.tsx) - Floating window version
+
+### Core Features
+1. **API Management**: Add, edit, delete mock APIs with method, path, name, description
+2. **Response Cases**: Multiple response scenarios per API with status codes, headers, body, delay
+3. **MSW Integration**: Real HTTP request interception for actual API testing
+4. **Export/Import**: Configuration sharing via JSON files
+5. **Auto-initialization**: Automatic setup with minimal configuration
+
+## Technology Stack
+- React 18 with TypeScript
+- MSW for request interception
+- Tailwind CSS for styling
+- Vite for build tooling
+- localStorage for persistence
+

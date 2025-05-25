@@ -1,5 +1,94 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Development & Build Configuration
+
+## Build System
+**Build Tool**: Vite with TypeScript and React support
+
+### Configuration Files
+- **Vite Config**: [vite.config.ts](mdc:vite.config.ts) - Build configuration, library mode setup
+- **TypeScript Config**: [tsconfig.json](mdc:tsconfig.json) - Strict TypeScript settings
+- **Package Config**: [package.json](mdc:package.json) - Dependencies, scripts, library metadata
+
+### Build Output
+- **Distribution**: `dist/` directory contains compiled library
+- **Types**: TypeScript declaration files (.d.ts) for library consumers
+- **CSS**: Compiled Tailwind CSS bundle
+- **NPM Package**: [api-mock-gui-1.0.0.tgz](mdc:api-mock-gui-1.0.0.tgz) - Ready for npm publishing
+
+## Styling System
+
+### Tailwind CSS
+- **Config**: [tailwind.config.js](mdc:tailwind.config.js) - Custom theme and component classes
+- **PostCSS**: [postcss.config.js](mdc:postcss.config.js) - CSS processing pipeline
+- **Styles**: [src/styles/](mdc:src/styles) - Custom CSS components and utilities
+
+### Custom Component Classes
+- Button variants (primary, secondary, danger)
+- Badge styles for HTTP methods and status codes
+- Form input and modal styling
+- Responsive layout utilities
+
+## Development Environment
+
+### Demo Application
+- **Entry Point**: [index.html](mdc:index.html) - Development HTML template
+- **Demo App**: [App.tsx](mdc:src/App.tsx) - Shows all component variants and usage examples
+- **Dev Utils**: [src/dev/](mdc:src/dev) - Development-specific utilities and examples
+
+### Scripts (from package.json)
+```bash
+npm run dev      # Start development server
+npm run build    # Build library for production
+npm run preview  # Preview built library
+npm run lint     # Run ESLint
+npm run pack     # Create NPM package
+```
+
+## Library Distribution
+
+### Entry Points
+- **Main**: [src/index.ts](mdc:src/index.ts) - Primary library exports
+- **Auto Setup**: [src/auto.ts](mdc:src/auto.ts) - Automatic initialization utilities
+
+### Published Package Structure
+```
+dist/
+├── index.js         # Main library bundle
+├── index.d.ts       # TypeScript declarations
+├── auto.js          # Auto-initialization bundle
+├── auto.d.ts        # Auto types
+└── style.css        # Compiled styles
+```
+
+### External Dependencies
+- **React 18**: Peer dependency (must be provided by consumer)
+- **MSW**: Bundled for request interception
+- **Tailwind CSS**: Compiled into bundle
+
+## Integration Patterns
+
+### NPM Installation
+```bash
+npm install api-mock-gui
+```
+
+### Service Worker Setup
+```bash
+npx msw init public/ --save
+```
+
+### Framework Integration
+- **React**: Direct component import
+- **Next.js**: Dynamic import for client-side only
+- **Vue.js**: Wrapper component pattern
+
+## Documentation
+- **README**: [README.md](mdc:README.md) - Main documentation and API reference
+- **Quick Start**: [QUICK_START.md](mdc:QUICK_START.md) - Getting started guide
+- **Usage Guide**: [USAGE_GUIDE.md](mdc:USAGE_GUIDE.md) - Detailed usage examples
+- **Project Structure**: [PROJECT_STRUCTURE.md](mdc:PROJECT_STRUCTURE.md) - Codebase organization
+
