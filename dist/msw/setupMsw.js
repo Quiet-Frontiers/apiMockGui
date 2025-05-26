@@ -82,28 +82,34 @@ export const mswHelpers = {
         }
     },
     /**
-     * localStorage에서 설정 로드
+     * JSON 파일에 설정 자동 저장 (개발 환경용)
      */
-    loadConfigFromLocalStorage: (key = 'api-mock-config') => {
+    saveConfigToFile: async (apis, filePath = '/api-config.json') => {
         try {
-            const stored = localStorage.getItem(key);
-            return stored ? JSON.parse(stored) : [];
+            // 브라우저 환경에서는 파일 시스템에 직접 쓸 수 없으므로
+            // 개발 서버를 통한 API 엔드포인트가 필요합니다
+            if (typeof window !== 'undefined') {
+                // 개발 환경에서만 작동
+                const response = await fetch('/api/save-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        filePath,
+                        config: apis
+                    })
+                });
+                if (!response.ok) {
+                    // API 엔드포인트가 없는 경우 자동 다운로드로 대체
+                    console.warn('자동 저장 API가 없습니다. 수동 Export를 사용하세요.');
+                    return;
+                }
+            }
         }
         catch (error) {
-            console.error('localStorage에서 설정 로드 실패:', error);
-            return [];
-        }
-    },
-    /**
-     * localStorage에 설정 저장
-     */
-    saveConfigToLocalStorage: (apis, key = 'api-mock-config') => {
-        try {
-            localStorage.setItem(key, JSON.stringify(apis));
-        }
-        catch (error) {
-            console.error('localStorage에 설정 저장 실패:', error);
-            throw error;
+            console.warn('JSON 파일 자동 저장 실패:', error);
+            // 에러가 발생해도 앱이 중단되지 않도록 warning만 출력
         }
     },
     /**

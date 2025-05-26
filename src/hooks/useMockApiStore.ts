@@ -1,9 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { MockApi, MockResponseCase, MockApiStore } from '../types';
+import { mswHelpers } from '../msw/setupMsw';
 
 export const useMockApiStore = (initialApis: MockApi[] = []): MockApiStore => {
   const [apis, setApis] = useState<MockApi[]>(initialApis);
+
+  // API 변경 시 자동 저장 함수
+  const saveToFile = useCallback(async (updatedApis: MockApi[]) => {
+    try {
+      await mswHelpers.saveConfigToFile(updatedApis, 'public/api-config.json');
+    } catch (error) {
+      console.warn('자동 저장 실패:', error);
+    }
+  }, []);
 
   const addApi = useCallback((apiData: Omit<MockApi, 'id' | 'createdAt' | 'updatedAt'>): string => {
     const id = uuidv4();
@@ -16,21 +26,36 @@ export const useMockApiStore = (initialApis: MockApi[] = []): MockApiStore => {
       updatedAt: now
     };
 
-    setApis((prev: MockApi[]) => [...prev, newApi]);
+    setApis((prev: MockApi[]) => {
+      const updatedApis = [...prev, newApi];
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
     return id;
-  }, []);
+  }, [saveToFile]);
 
   const updateApi = useCallback((id: string, updates: Partial<MockApi>) => {
-    setApis((prev: MockApi[]) => prev.map((api: MockApi) => 
-      api.id === id 
-        ? { ...api, ...updates, updatedAt: new Date().toISOString() }
-        : api
-    ));
-  }, []);
+    setApis((prev: MockApi[]) => {
+      const updatedApis = prev.map((api: MockApi) => 
+        api.id === id 
+          ? { ...api, ...updates, updatedAt: new Date().toISOString() }
+          : api
+      );
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
+  }, [saveToFile]);
 
   const deleteApi = useCallback((id: string) => {
-    setApis((prev: MockApi[]) => prev.filter((api: MockApi) => api.id !== id));
-  }, []);
+    setApis((prev: MockApi[]) => {
+      const updatedApis = prev.filter((api: MockApi) => api.id !== id);
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
+  }, [saveToFile]);
 
   const addCase = useCallback((apiId: string, caseData: Omit<MockResponseCase, 'id'>): string => {
     const caseId = uuidv4();
@@ -39,53 +64,73 @@ export const useMockApiStore = (initialApis: MockApi[] = []): MockApiStore => {
       id: caseId
     };
 
-    setApis((prev: MockApi[]) => prev.map((api: MockApi) => 
-      api.id === apiId 
-        ? { 
-            ...api, 
-            cases: [...api.cases, newCase],
-            updatedAt: new Date().toISOString()
-          }
-        : api
-    ));
+    setApis((prev: MockApi[]) => {
+      const updatedApis = prev.map((api: MockApi) => 
+        api.id === apiId 
+          ? { 
+              ...api, 
+              cases: [...api.cases, newCase],
+              updatedAt: new Date().toISOString()
+            }
+          : api
+      );
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
     
     return caseId;
-  }, []);
+  }, [saveToFile]);
 
   const updateCase = useCallback((apiId: string, caseId: string, updates: Partial<MockResponseCase>) => {
-    setApis((prev: MockApi[]) => prev.map((api: MockApi) => 
-      api.id === apiId 
-        ? {
-            ...api,
-            cases: api.cases.map((c: MockResponseCase) => 
-              c.id === caseId ? { ...c, ...updates } : c
-            ),
-            updatedAt: new Date().toISOString()
-          }
-        : api
-    ));
-  }, []);
+    setApis((prev: MockApi[]) => {
+      const updatedApis = prev.map((api: MockApi) => 
+        api.id === apiId 
+          ? {
+              ...api,
+              cases: api.cases.map((c: MockResponseCase) => 
+                c.id === caseId ? { ...c, ...updates } : c
+              ),
+              updatedAt: new Date().toISOString()
+            }
+          : api
+      );
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
+  }, [saveToFile]);
 
   const deleteCase = useCallback((apiId: string, caseId: string) => {
-    setApis((prev: MockApi[]) => prev.map((api: MockApi) => 
-      api.id === apiId 
-        ? {
-            ...api,
-            cases: api.cases.filter((c: MockResponseCase) => c.id !== caseId),
-            activeCase: api.activeCase === caseId ? undefined : api.activeCase,
-            updatedAt: new Date().toISOString()
-          }
-        : api
-    ));
-  }, []);
+    setApis((prev: MockApi[]) => {
+      const updatedApis = prev.map((api: MockApi) => 
+        api.id === apiId 
+          ? {
+              ...api,
+              cases: api.cases.filter((c: MockResponseCase) => c.id !== caseId),
+              activeCase: api.activeCase === caseId ? undefined : api.activeCase,
+              updatedAt: new Date().toISOString()
+            }
+          : api
+      );
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
+  }, [saveToFile]);
 
   const setActiveCase = useCallback((apiId: string, caseId: string) => {
-    setApis((prev: MockApi[]) => prev.map((api: MockApi) => 
-      api.id === apiId 
-        ? { ...api, activeCase: caseId, updatedAt: new Date().toISOString() }
-        : api
-    ));
-  }, []);
+    setApis((prev: MockApi[]) => {
+      const updatedApis = prev.map((api: MockApi) => 
+        api.id === apiId 
+          ? { ...api, activeCase: caseId, updatedAt: new Date().toISOString() }
+          : api
+      );
+      // 비동기로 파일 저장
+      saveToFile(updatedApis);
+      return updatedApis;
+    });
+  }, [saveToFile]);
 
   const exportConfig = useCallback(() => {
     return JSON.stringify(apis, null, 2);

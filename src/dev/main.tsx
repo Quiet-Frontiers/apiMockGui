@@ -9,8 +9,10 @@ const App = () => {
 
   const handleConfigChange = (apis: any[]) => {
     console.log('Config changed:', apis);
-    // localStorage에 자동 저장
-    mswHelpers.saveConfigToLocalStorage(apis);
+    // JSON 파일에 자동 저장 (개발 환경에서만)
+    if (process.env.NODE_ENV === 'development') {
+      mswHelpers.saveConfigToFile(apis, 'public/api-config.json');
+    }
   };
 
   const handleServerStart = () => {

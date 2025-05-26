@@ -39,8 +39,9 @@ function App() {
         autoStart={true}
         onServerStart={() => console.log('Mock server started!')}
         onConfigChange={(apis) => {
-          // 설정을 localStorage에 저장
-          mswHelpers.saveConfigToLocalStorage(apis);
+          // JSON 파일 기반 설정 관리
+          // Export/Import 기능을 통해 수동으로 관리
+          console.log('Config changed:', apis);
         }}
       />
     </div>
@@ -182,14 +183,12 @@ afterAll(() => server.stop());
 ```tsx
 import { mswHelpers } from 'api-mock-gui';
 
-// localStorage에서 설정 로드
-const savedConfig = mswHelpers.loadConfigFromLocalStorage();
-
 // 설정 파일에서 로드
 const fileConfig = await mswHelpers.loadConfigFromFile('/config/mock-apis.json');
 
-// localStorage에 저장
-mswHelpers.saveConfigToLocalStorage(apis);
+// GUI에서 내보내기/가져오기 기능 사용
+// - Export 버튼으로 JSON 파일 다운로드
+// - Import 버튼으로 JSON 파일 업로드
 ```
 
 #### 설정 검증
@@ -221,9 +220,9 @@ export const ApiMocker: React.FC<ApiMockerProps> = ({ enabled = false }) => {
   const [savedConfig, setSavedConfig] = useState<MockApi[]>([]);
 
   useEffect(() => {
-    // 저장된 설정 로드
-    const config = mswHelpers.loadConfigFromLocalStorage('my-project-mock-config');
-    setSavedConfig(config);
+    // 설정 파일에서 로드 (필요시)
+    // const config = await mswHelpers.loadConfigFromFile('/config/mock-apis.json');
+    // setSavedConfig(config);
   }, []);
 
   if (!isVisible) {
@@ -259,7 +258,9 @@ export const ApiMocker: React.FC<ApiMockerProps> = ({ enabled = false }) => {
           autoStart={true}
           initialConfig={savedConfig}
           onConfigChange={(apis) => {
-            mswHelpers.saveConfigToLocalStorage(apis, 'my-project-mock-config');
+            // JSON 파일 기반 설정 관리
+            // Export/Import 기능을 통해 수동으로 관리
+            console.log('Config changed:', apis);
           }}
         />
       </div>

@@ -20,13 +20,9 @@ export declare const mswHelpers: {
      */
     loadConfigFromFile: (configPath: string) => Promise<MockApi[]>;
     /**
-     * localStorage에서 설정 로드
+     * JSON 파일에 설정 자동 저장 (개발 환경용)
      */
-    loadConfigFromLocalStorage: (key?: string) => MockApi[];
-    /**
-     * localStorage에 설정 저장
-     */
-    saveConfigToLocalStorage: (apis: MockApi[], key?: string) => void;
+    saveConfigToFile: (apis: MockApi[], filePath?: string) => Promise<void>;
     /**
      * 서버 설정 생성 도우미
      */
