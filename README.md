@@ -4,13 +4,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
-**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 초간단 라이브러리입니다. 설치만 하면 자동으로 작은 floating button이 나타나며, MSW(Mock Service Worker)를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
+**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 초간단 라이브러리입니다. 설치만 하면 자동으로 작은 floating button이 나타나며, axios-mock-adapter를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
 
 ## ✨ 주요 특징
 
 - 🚀 **Zero Config**: 라이브러리 import만으로 즉시 활성화
 - 🎯 **자동 Floating Button**: 개발 환경에서 작고 둥근 버튼이 우측 하단에 자동 생성
-- 📡 **MSW 통합**: Service Worker를 통한 실제 네트워크 요청 차단
+- 📡 **axios-mock-adapter 통합**: axios 요청을 직접 가로채어 Mock 응답 제공
 - 🔄 **실시간 제어**: Mock 서버 시작/중지 및 API 설정 변경
 - 🔧 **개발자 친화적**: TypeScript 지원 및 직관적인 GUI
 - 🌐 **프레임워크 무관**: React, Next.js, Vue.js 등 다양한 환경 지원
@@ -23,17 +23,11 @@
 npm install api-mock-gui
 ```
 
-### 2. MSW 서비스 워커 설정
-
-```bash
-npx msw init public/ --save
-```
-
-### 3. 사용하기 (이게 전부입니다!)
+### 2. 사용하기 (이게 전부입니다!)
 
 ```typescript
 // App.tsx 또는 index.tsx에 추가
-import 'api-mock-gui';
+import 'api-mock-gui/auto';
 
 function App() {
   return <div>Your App</div>;
@@ -47,7 +41,7 @@ function App() {
 ### 🎯 기본 사용법
 
 ```typescript
-import 'api-mock-gui';
+import 'api-mock-gui/auto';
 ```
 
 **자동으로 발생하는 일들:**
@@ -55,7 +49,7 @@ import 'api-mock-gui';
 - ✅ 우측 하단에 작고 둥근 floating button 자동 표시
 - ✅ 클릭하면 Mock API 관리 패널이 열림
 - ✅ 프로덕션에서는 자동으로 비활성화
-- ✅ MSW를 통한 HTTP 요청 자동 가로채기
+- ✅ axios-mock-adapter를 통한 HTTP 요청 자동 가로채기
 
 ### 🎮 GUI 사용법
 
@@ -74,16 +68,16 @@ import 'api-mock-gui';
 
 ```typescript
 // 1. 라이브러리 import
-import 'api-mock-gui';
+import 'api-mock-gui/auto';
+import axios from 'axios'; // axios 사용 권장
 
 function MyApp() {
   const [users, setUsers] = useState([]);
 
   // 2. 실제 API 호출 (Mock으로 가로채짐)
   const fetchUsers = async () => {
-    const response = await fetch('/api/users');
-    const data = await response.json();
-    setUsers(data.users || []);
+    const response = await axios.get('/api/users');
+    setUsers(response.data.users || []);
   };
 
   return (
@@ -118,7 +112,7 @@ import 'api-mock-gui/dist/styles.css';
 #### Next.js
 ```typescript
 // pages/_app.tsx 또는 app/layout.tsx
-import 'api-mock-gui';
+import 'api-mock-gui/auto';
 
 export default function App({ Component, pageProps }) {
   return <Component {...pageProps} />;
@@ -128,7 +122,7 @@ export default function App({ Component, pageProps }) {
 #### Vue.js
 ```javascript
 // main.js
-import 'api-mock-gui';
+import 'api-mock-gui/auto';
 
 const app = createApp(App);
 app.mount('#app');
@@ -137,28 +131,30 @@ app.mount('#app');
 #### Vanilla JavaScript
 ```html
 <script type="module">
-  import 'api-mock-gui';
+  import 'api-mock-gui/auto';
 </script>
 ```
 
 ## 🔍 실제 동작 방식
 
-### MSW 기반 요청 가로채기
+### axios-mock-adapter 기반 요청 가로채기
 
 ```mermaid
 sequenceDiagram
     participant App as 사용자 앱
-    participant MSW as MSW Worker
+    participant Axios as Axios Instance
+    participant Adapter as Mock Adapter
     participant GUI as Mock GUI
     participant Server as 실제 서버
 
     Note over GUI: GUI에서 Mock API 설정
-    GUI->>MSW: Handler 등록 (GET /api/users)
+    GUI->>Adapter: Handler 등록 (GET /api/users)
     
     Note over App: 앱에서 API 호출
-    App->>MSW: fetch('/api/users')
-    MSW->>MSW: 등록된 Handler 확인
-    MSW->>App: Mock 응답 반환
+    App->>Axios: axios.get('/api/users')
+    Axios->>Adapter: 요청 가로채기
+    Adapter->>Adapter: 등록된 Handler 확인
+    Adapter->>App: Mock 응답 반환
     
     Note over Server: 실제 서버는 호출되지 않음
 ```
@@ -167,9 +163,9 @@ sequenceDiagram
 
 1. **Import 시**: 자동으로 floating button 생성
 2. **개발 환경 감지**: localhost, 127.0.0.1 등에서만 활성화
-3. **MSW 초기화**: Service Worker를 통한 요청 가로채기 준비
+3. **axios-mock-adapter 초기화**: axios 인스턴스에 Mock Adapter 적용
 4. **GUI 제어**: 실시간으로 Mock API 추가/수정/삭제
-5. **자동 Handler 업데이트**: GUI 변경 시 MSW Handler 자동 갱신
+5. **자동 Handler 업데이트**: GUI 변경 시 Mock Adapter Handler 자동 갱신
 
 ## 📦 라이브러리 구조
 
@@ -193,8 +189,8 @@ api-mock-gui/
    ```
 
 2. **Network 탭 확인**:
-   - Mock된 요청은 `(from service worker)` 표시
-   - 실제 네트워크 요청 대신 로컬 응답
+   - Mock된 요청은 실제 네트워크 요청이 발생하지 않음
+   - axios-mock-adapter가 요청을 가로채어 즉시 응답
 
 3. **Floating Button 확인**:
    - 우측 하단에 작은 둥근 버튼 (Settings 아이콘)
@@ -213,15 +209,22 @@ const isDev = window.location.hostname.includes('localhost') ||
 console.log('Is Development:', isDev);
 ```
 
-**Q: MSW가 작동하지 않아요**
-1. `npx msw init public/ --save` 실행 확인
-2. `public/mockServiceWorker.js` 파일 존재 확인
-3. HTTPS 환경에서만 Service Worker 작동 (localhost 제외)
+**Q: axios가 Mock되지 않아요**
+1. axios를 사용하고 있는지 확인 (fetch API는 지원하지 않음)
+2. Mock Server가 "Running" 상태인지 확인
+3. API Path가 정확히 일치하는지 확인
+4. HTTP Method가 일치하는지 확인
 
-**Q: API 요청이 Mock되지 않아요**
-1. Mock Server가 "Running" 상태인지 확인
-2. API Path가 정확히 일치하는지 확인
-3. HTTP Method가 일치하는지 확인
+**Q: fetch API를 사용하고 있어요**
+```typescript
+// fetch 대신 axios 사용을 권장합니다
+// Before
+const response = await fetch('/api/users');
+
+// After
+import axios from 'axios';
+const response = await axios.get('/api/users');
+```
 
 ## 📄 라이선스
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2 } from 'lucide-react';
 import { ApiMockManagerProps, MockApi, MockResponseCase, HttpMethod, HttpStatus } from '../types';
-import { MockServer, createMockServer } from '../msw/mockServer';
+import { MockServer } from '../mock/mockServer';
 import { useMockApiStore } from '../hooks/useMockApiStore';
 
 interface FloatingApiMockManagerProps extends ApiMockManagerProps {
@@ -53,7 +53,7 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   // MockServer 인스턴스 초기화
   useEffect(() => {
     if (!mockServerRef.current) {
-      mockServerRef.current = createMockServer(serverConfig);
+      mockServerRef.current = new MockServer(serverConfig);
     }
   }, [serverConfig]);
 

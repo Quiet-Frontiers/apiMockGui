@@ -4,6 +4,6 @@ import './auto-init';
 export { FloatingApiMockManager } from './components/FloatingApiMockManager';
 // 필수 유틸리티
 export { useMockApiStore } from './hooks/useMockApiStore';
-export { MockServer } from './msw/mockServer';
+export { MockServer } from './mock/mockServer';
 // 스타일
 import './styles/globals.css';

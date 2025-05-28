@@ -11,15 +11,15 @@
 │   │   │   ├── 🧩 ApiList.tsx              # API 목록 관리
 │   │   │   ├── 🧩 ApiEditor.tsx            # API 편집기
 │   │   │   ├── 🧩 ResponseCaseEditor.tsx   # 응답 케이스 편집
-│   │   │   ├── 🎮 ApiMockManager.tsx       # MSW 통합 매니저
+│   │   │   ├── 🎮 ApiMockManager.tsx       # Mock Adapter 통합 매니저
 │   │   │   ├── 🎈 FloatingApiMockManager.tsx # 플로팅 버튼 모드
 │   │   │   ├── 🪟 PopupApiMockManager.tsx    # 팝업 창 모드
 │   │   │   └── 🚀 AutoApiMockInit.tsx       # 자동 초기화
 │   │   ├── 📂 hooks/
 │   │   │   └── 🎣 useMockApiStore.ts       # 상태 관리 훅
-│   │   ├── 📂 msw/
-│   │   │   ├── ⚙️ mockServer.ts           # MSW 서버 인스턴스
-│   │   │   └── 🔧 setupMsw.ts             # MSW 설정 헬퍼
+│   │   ├── 📂 mock/
+│   │   │   ├── ⚙️ mockServer.ts           # axios-mock-adapter 서버
+│   │   │   └── 🔧 setupMsw.ts             # Mock 설정 헬퍼
 │   │   ├── 📂 styles/
 │   │   │   └── 🎨 globals.css             # Tailwind CSS
 │   │   ├── 📂 types/
@@ -40,7 +40,6 @@
     │   ├── 📄 App.tsx                     # 테스트 앱
     │   └── 📄 index.tsx                   # 진입점
     ├── 📂 public/
-    │   └── 🔧 mockServiceWorker.js        # MSW Service Worker
     └── 📄 package.json                    # 테스트 프로젝트 설정
 ```
 
@@ -61,7 +60,7 @@ package "🎭 API Mock GUI Library" as LIBRARY {
     [🚀 AutoApiMockInit\n자동 초기화 로직] as AUTOINIT
     [🪟 PopupApiMockManager\n팝업 창 모드] as POPUP
     [🎈 FloatingApiMockManager\n플로팅 패널 모드] as FLOATING
-    [🎮 ApiMockManager\nMSW 통합 매니저] as MANAGER
+    [🎮 ApiMockManager\nMock Adapter 통합 매니저] as MANAGER
     [🧩 ApiMockGui\n기본 GUI 컴포넌트] as GUI
   }
 
@@ -73,13 +72,13 @@ package "🎭 API Mock GUI Library" as LIBRARY {
 
   package "🔧 Core Logic" as LOGIC {
     [🎣 useMockApiStore\n상태 관리 훅] as STORE
-    [⚙️ MockServer\nMSW 서버] as MSW
-    [🔧 mswHelpers\nMSW 설정 도구] as HELPERS
+    [⚙️ MockServer\naxios-mock-adapter] as MOCK_SERVER
+    [🔧 mockHelpers\nMock 설정 도구] as HELPERS
   }
 }
 
 package "🌐 Browser Environment" as BROWSER {
-  [🔧 Service Worker\nmockServiceWorker.js] as SW
+  [📡 Axios Instance\nHTTP 클라이언트] as AXIOS
   [🌐 DOM\n애플리케이션] as DOM
 }
 
@@ -109,14 +108,14 @@ EDITOR --> CASE
 
 ' Core Logic 연결
 GUI --> STORE
-MANAGER --> MSW
-POPUP --> MSW
-FLOATING --> MSW
-MSW --> HELPERS
+MANAGER --> MOCK_SERVER
+POPUP --> MOCK_SERVER
+FLOATING --> MOCK_SERVER
+MOCK_SERVER --> HELPERS
 
 ' Network 연결
-MSW --> SW
-SW --> HTTP
+MOCK_SERVER --> AXIOS
+AXIOS --> HTTP
 HTTP --> MOCK
 MOCK --> DOM
 
@@ -146,7 +145,7 @@ package "🖥️ 화면 표시" DISPLAY_COLOR {
   [📄 Inline GUI\n페이지 내 통합] as INLINE_GUI
 }
 
-package "⚙️ MSW 제어" CONTROL_COLOR {
+package "⚙️ Mock Adapter 제어" CONTROL_COLOR {
   [🟢 서버 시작\nMock 활성화] as START_SERVER
   [📝 설정 변경\nAPI 엔드포인트 관리] as CONFIG_CHANGE
   [🔴 서버 중지\nMock 비활성화] as STOP_SERVER
@@ -176,31 +175,31 @@ CONFIG_CHANGE --> STOP_SERVER
 participant "👨‍💻 개발자" as Dev
 participant "🌐 애플리케이션" as App  
 participant "🎭 Mock GUI" as GUI
-participant "⚙️ MSW Server" as MSW
-participant "🔧 Service Worker" as SW
-participant "📡 실제 API" as API
+participant "⚙️ Mock Server" as MOCK_SERVER
+participant "📡 Axios Instance" as AXIOS
+participant "🌐 실제 API" as API
 
 Dev -> App: import 'api-mock-gui/auto'
 App -> GUI: 자동 초기화
-GUI -> MSW: 서버 인스턴스 생성
+GUI -> MOCK_SERVER: 서버 인스턴스 생성
 GUI -> App: Floating Button 표시
 
 Dev -> GUI: 버튼 클릭
 GUI -> GUI: 팝업 창 열기
 Dev -> GUI: API 엔드포인트 설정
-GUI -> MSW: 핸들러 업데이트
-MSW -> SW: 요청 가로채기 설정
+GUI -> MOCK_SERVER: 핸들러 업데이트
+MOCK_SERVER -> AXIOS: Mock Adapter 설정
 
-App -> SW: HTTP 요청 발생
-SW -> MSW: 요청 전달
+App -> AXIOS: HTTP 요청 발생
+AXIOS -> MOCK_SERVER: 요청 가로채기
 
 alt Mock이 설정된 경우
-    MSW -> SW: Mock 응답 반환
-    SW -> App: Mock 데이터 전달
+    MOCK_SERVER -> AXIOS: Mock 응답 반환
+    AXIOS -> App: Mock 데이터 전달
 else Mock이 없는 경우
-    SW -> API: 실제 요청 전달
-    API -> SW: 실제 응답
-    SW -> App: 실제 데이터 전달
+    AXIOS -> API: 실제 요청 전달
+    API -> AXIOS: 실제 응답
+    AXIOS -> App: 실제 데이터 전달
 end
 
 @enduml
@@ -295,8 +294,8 @@ package "🧩 UI Components" UI_COLOR {
 
 package "🔧 Core Logic" LOGIC_COLOR {
   [useMockApiStore] as STORE
-  [MockServer] as MSW_SERVER
-  [mswHelpers] as MSW_HELPERS
+  [MockServer] as MOCK_SERVER
+  [mockHelpers] as MOCK_HELPERS
 }
 
 AUTO_ENTRY --> AUTO_INIT
@@ -316,11 +315,11 @@ API_LIST --> CASE_EDITOR
 API_EDITOR --> CASE_EDITOR
 
 API_GUI --> STORE
-API_MGR --> MSW_SERVER
-POPUP_MGR --> MSW_SERVER
-FLOAT_MGR --> MSW_SERVER
+API_MGR --> MOCK_SERVER
+POPUP_MGR --> MOCK_SERVER
+FLOAT_MGR --> MOCK_SERVER
 
-MSW_SERVER --> MSW_HELPERS
+MOCK_SERVER --> MOCK_HELPERS
 
 @enduml
 ```
@@ -333,9 +332,20 @@ MSW_SERVER --> MSW_HELPERS
 | 🪟 **팝업 창 모드** | 별도 창에서 GUI 제공, 메인 앱 방해 없음 | `PopupApiMockManager` |
 | 🎈 **플로팅 모드** | 드래그 가능한 플로팅 패널 | `FloatingApiMockManager` |
 | 📦 **인라인 모드** | 앱 내부에 통합된 GUI | `ApiMockManager` |
-| 📡 **MSW 통합** | Service Worker를 통한 실제 요청 차단 | `MockServer` + `mswHelpers` |
+| 📡 **axios-mock-adapter 통합** | axios 요청을 직접 가로채어 Mock 응답 제공 | `MockServer` + `mockHelpers` |
 | 🔄 **실시간 제어** | 서버 시작/중지 및 설정 변경 | 모든 Manager 컴포넌트 |
 | 🎮 **다양한 모드** | 개발 환경에 맞는 유연한 사용법 | 전체 컴포넌트 시스템 |
+
+## 💡 axios-mock-adapter vs MSW 비교
+
+| 측면 | axios-mock-adapter | MSW |
+|------|-------------------|-----|
+| **설정 복잡도** | 매우 간단 (import만) | 중간 (Service Worker 설정) |
+| **지원 범위** | axios 요청만 | 모든 HTTP 요청 |
+| **성능** | 매우 빠름 (네트워크 레이어 거치지 않음) | 빠름 (Service Worker 경유) |
+| **디버깅** | Console에서만 확인 가능 | Network 탭에서 확인 가능 |
+| **호환성** | axios 기반 프로젝트에 최적 | 모든 HTTP 라이브러리 지원 |
+| **배포 크기** | 작음 | 중간 |
 
 ---
 

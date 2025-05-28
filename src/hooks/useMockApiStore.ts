@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { MockApi, MockResponseCase, MockApiStore } from '../types';
-import { mswHelpers } from '../msw/setupMsw';
+import { mockHelpers } from '../mock/setupMsw';
 
 export const useMockApiStore = (initialApis: MockApi[] = []): MockApiStore => {
   const [apis, setApis] = useState<MockApi[]>(initialApis);
@@ -9,7 +9,7 @@ export const useMockApiStore = (initialApis: MockApi[] = []): MockApiStore => {
   // API 변경 시 자동 저장 함수
   const saveToFile = useCallback(async (updatedApis: MockApi[]) => {
     try {
-      await mswHelpers.saveConfigToFile(updatedApis, 'public/api-config.json');
+      await mockHelpers.saveConfigToFile(updatedApis, 'public/api-config.json');
     } catch (error) {
       console.warn('자동 저장 실패:', error);
     }

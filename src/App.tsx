@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import 'api-mock-gui/auto'; // 🎯 이 한 줄만으로 floating button이 자동으로 나타납니다!
 import './App.css';
 
@@ -8,55 +9,48 @@ function App() {
       <h4 className="font-semibold mb-2">🧪 API 테스트</h4>
       <div className="space-y-2">
         <button
-          onClick={() => {
-            fetch('/api/users')
-              .then(response => response.json())
-              .then(data => {
-                console.log('Mock Response:', data);
-                alert(`Mock 응답 받음: ${JSON.stringify(data, null, 2)}`);
-              })
-              .catch(err => {
-                console.error('Error:', err);
-                alert(`Error: ${err.message}`);
-              });
+          onClick={async () => {
+            try {
+              const response = await axios.get('/api/users');
+              console.log('Mock Response:', response.data);
+              alert(`Mock 응답 받음: ${JSON.stringify(response.data, null, 2)}`);
+            } catch (err: any) {
+              console.error('Error:', err);
+              alert(`Error: ${err.message}`);
+            }
           }}
           className="block w-full px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200"
         >
           GET /api/users
         </button>
         <button
-          onClick={() => {
-            fetch('/api/posts')
-              .then(response => response.json())
-              .then(data => {
-                console.log('Mock Response:', data);
-                alert(`Mock 응답 받음: ${JSON.stringify(data, null, 2)}`);
-              })
-              .catch(err => {
-                console.error('Error:', err);
-                alert(`Error: ${err.message}`);
-              });
+          onClick={async () => {
+            try {
+              const response = await axios.get('/api/posts');
+              console.log('Mock Response:', response.data);
+              alert(`Mock 응답 받음: ${JSON.stringify(response.data, null, 2)}`);
+            } catch (err: any) {
+              console.error('Error:', err);
+              alert(`Error: ${err.message}`);
+            }
           }}
           className="block w-full px-3 py-1 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200"
         >
           GET /api/posts
         </button>
         <button
-          onClick={() => {
-            fetch('/api/posts', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ title: 'Test Post', content: 'Test content' })
-            })
-              .then(response => response.json())
-              .then(data => {
-                console.log('Mock Response:', data);
-                alert(`Mock 응답 받음: ${JSON.stringify(data, null, 2)}`);
-              })
-              .catch(err => {
-                console.error('Error:', err);
-                alert(`Error: ${err.message}`);
+          onClick={async () => {
+            try {
+              const response = await axios.post('/api/posts', {
+                title: 'Test Post',
+                content: 'Test content'
               });
+              console.log('Mock Response:', response.data);
+              alert(`Mock 응답 받음: ${JSON.stringify(response.data, null, 2)}`);
+            } catch (err: any) {
+              console.error('Error:', err);
+              alert(`Error: ${err.message}`);
+            }
           }}
           className="block w-full px-3 py-1 bg-purple-100 text-purple-800 rounded text-sm hover:bg-purple-200"
         >
@@ -67,7 +61,7 @@ function App() {
             onClick={() => {
               console.log('💡 개발자 도구의 Network 탭에서 요청을 확인하세요!');
               console.log('🎭 우측 하단의 floating button을 클릭하여 Mock GUI를 열 수 있습니다.');
-              alert('개발자 도구(F12) > Network 탭에서 Mock된 응답을 확인할 수 있습니다.');
+              alert('개발자 도구(F12) > Network 탭에서 axios Mock된 응답을 확인할 수 있습니다.');
             }}
             className="block w-full px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200"
           >
@@ -111,7 +105,7 @@ function App() {
                   <li>• 🎯 One-line import로 즉시 활성화</li>
                   <li>• 🔄 개발 환경에서만 자동 활성화</li>
                   <li>• 🪟 별도 팝업 창으로 GUI 제공</li>
-                  <li>• 📡 MSW 기반 실제 요청 차단</li>
+                  <li>• 📡 axios-mock-adapter 기반 요청 차단</li>
                   <li>• 🎮 실시간 Mock 서버 제어</li>
                 </ul>
               </div>

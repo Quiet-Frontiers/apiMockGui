@@ -30,7 +30,7 @@
     "gui",
     "testing",
     "development",
-    "msw"
+    "axios-mock-adapter"
   ],
   "author": {
     "name": "Hyeongmin Kim",
@@ -64,13 +64,9 @@
   },
   "dependencies": {
     "@types/uuid": "^9.0.0",
+    "axios": "^1.6.0",
+    "axios-mock-adapter": "^1.22.0",
     "lucide-react": "^0.263.1",
-    "msw": "^2.0.0",
     "uuid": "^9.0.0"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
   }
 }

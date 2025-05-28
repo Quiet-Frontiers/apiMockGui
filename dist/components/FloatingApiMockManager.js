@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect, useRef } from 'react';
 import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2 } from 'lucide-react';
-import { createMockServer } from '../msw/mockServer';
+import { MockServer } from '../mock/mockServer';
 import { useMockApiStore } from '../hooks/useMockApiStore';
 export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServerStart, onServerStop, position = 'bottom-right', buttonText, buttonIcon, panelWidth = '800px', panelHeight = '600px', minimizable = true, draggable = true, ...guiProps }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,7 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
     // MockServer 인스턴스 초기화
     useEffect(() => {
         if (!mockServerRef.current) {
-            mockServerRef.current = createMockServer(serverConfig);
+            mockServerRef.current = new MockServer(serverConfig);
         }
     }, [serverConfig]);
     // 자동 시작

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { FloatingApiMockManager } from '../components/FloatingApiMockManager';
-import { mswHelpers, presets } from '../msw/setupMsw';
+import { mockHelpers, presets } from '../mock/setupMsw';
 import '../styles/globals.css';
 
 const App = () => {
@@ -11,7 +11,7 @@ const App = () => {
     console.log('Config changed:', apis);
     // JSON 파일에 자동 저장 (개발 환경에서만)
     if (process.env.NODE_ENV === 'development') {
-      mswHelpers.saveConfigToFile(apis, 'public/api-config.json');
+      mockHelpers.saveConfigToFile(apis, 'public/api-config.json');
     }
   };
 
@@ -149,7 +149,7 @@ const App = () => {
   ];
 
   // 서버 설정
-  const serverConfig = mswHelpers.createServerConfig({
+  const serverConfig = mockHelpers.createServerConfig({
     baseUrl: 'http://localhost:3000', // 실제 API 서버 URL
     environment: 'browser',
     development: selectedPreset === 'development'
