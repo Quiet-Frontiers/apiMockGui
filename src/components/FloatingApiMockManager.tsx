@@ -182,75 +182,82 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   };
 
   const FloatingButton = () => (
-    <button
+    <div
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         console.log('🎭 Floating button clicked!');
         setIsOpen(true);
       }}
-      className={`
-        api-mock-floating-btn group relative flex items-center justify-center w-16 h-16
-        ${isServerRunning 
-          ? 'bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-700' 
-          : 'bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-        }
-        text-white rounded-2xl shadow-2xl transition-all duration-300 ease-out
-        hover:shadow-3xl hover:scale-110 active:scale-95 
-        border-3 border-white/30 backdrop-blur-sm
-        ring-4 ring-black/10 dark:ring-white/10
-      `}
-      style={{ 
-        ...getPositionStyle(), 
+      className="api-mock-floating-btn"
+      style={{
+        ...getPositionStyle(),
         pointerEvents: 'auto',
-        zIndex: 999999,
-        // 다크모드에서도 확실히 보이도록 box-shadow 강화
-        boxShadow: isServerRunning 
-          ? '0 20px 40px -12px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-          : '0 20px 40px -12px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+        zIndex: 2147483647,
+        position: 'fixed',
+        width: '60px',
+        height: '60px',
+        borderRadius: '50%',
+        backgroundColor: isServerRunning ? '#10B981' : '#3B82F6',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1)',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.3s ease',
+        border: '3px solid rgba(255, 255, 255, 0.3)',
+        backdropFilter: 'blur(10px)'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.1)';
+        e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(0, 0, 0, 0.2)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1)';
+      }}
+      onMouseDown={(e) => {
+        e.currentTarget.style.transform = 'scale(0.95)';
+      }}
+      onMouseUp={(e) => {
+        e.currentTarget.style.transform = 'scale(1.1)';
       }}
       title={isServerRunning ? '🎭 API Mock 실행 중 - 클릭하여 관리' : '🎭 API Mock 중단됨 - 클릭하여 시작'}
     >
-      {/* 배경 글로우 효과 - 다크모드에서도 보이도록 */}
-      <div className={`absolute inset-0 rounded-2xl transition-opacity duration-300 ${isServerRunning 
-        ? 'bg-emerald-400/30 animate-pulse' 
-        : 'bg-indigo-400/30'
-      }`} />
-      
-      {/* 기본 아이콘 - 더 큰 크기로 */}
-      <div className="relative z-10">
-        {buttonIcon || (
-          <div className="flex items-center space-x-1">
-            <Database className="w-6 h-6 drop-shadow-sm" />
-            <Zap className="w-4 h-4 opacity-90 drop-shadow-sm" />
-          </div>
-        )}
+      {/* 메인 아이콘 */}
+      <div style={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Database size={28} strokeWidth={2.5} />
       </div>
       
-      {/* 실행 상태 표시 - 더 눈에 띄게 */}
+      {/* 실행 상태 표시 */}
       {isServerRunning && (
-        <>
-          <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-400 rounded-full border-3 border-white shadow-lg">
-            <div className="w-full h-full bg-green-400 rounded-full animate-pulse" />
-          </div>
-          <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-400 rounded-full animate-ping opacity-75" />
-        </>
+        <div
+          style={{
+            position: 'absolute',
+            top: '-3px',
+            right: '-3px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#22C55E',
+            borderRadius: '50%',
+            border: '3px solid white',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            animation: 'pulse 2s infinite'
+          }}
+        />
       )}
       
-      {/* 호버 효과 - 라벨 표시 (다크모드 대응) */}
-      <div className="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 
-                     bg-gray-900/95 dark:bg-gray-100/95 text-white dark:text-gray-900 
-                     text-xs px-3 py-2 rounded-lg whitespace-nowrap font-medium
-                     opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none
-                     border border-white/20 dark:border-gray-900/20 shadow-xl">
-        {isServerRunning ? '🎭 API Mock 실행 중' : '🎭 API Mock 관리'}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent 
-                       border-t-gray-900/95 dark:border-t-gray-100/95" />
-      </div>
-      
-      {/* 클릭 범위 확대를 위한 투명 영역 */}
-      <div className="absolute -inset-2 rounded-3xl" />
-    </button>
+      {/* CSS 애니메이션 정의 */}
+      <style>
+        {`
+          @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+          }
+        `}
+      </style>
+    </div>
   );
 
   const handleSaveNewApi = () => {
@@ -282,47 +289,89 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   };
 
   const SimpleMockGui = () => (
-    <div className="p-4 space-y-4">
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Server Controls */}
-      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-200">Mock Server</h3>
-          <div className="flex items-center space-x-2">
+      <div style={{
+        backgroundColor: '#F1F5F9',
+        padding: '20px',
+        borderRadius: '12px',
+        border: '1px solid #E2E8F0'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          marginBottom: '16px' 
+        }}>
+          <h3 style={{ 
+            fontWeight: '600', 
+            fontSize: '16px', 
+            color: '#1E293B', 
+            margin: 0 
+          }}>
+            Mock Server
+          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {isServerRunning ? (
-              <Wifi className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <Wifi size={16} color="#10B981" />
             ) : (
-              <WifiOff className="w-4 h-4 text-gray-400" />
+              <WifiOff size={16} color="#94A3B8" />
             )}
-            <span className={`text-sm ${isServerRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            <span style={{ 
+              fontSize: '14px', 
+              color: isServerRunning ? '#10B981' : '#64748B',
+              fontWeight: '500'
+            }}>
               {isServerRunning ? 'Running' : 'Stopped'}
             </span>
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             onClick={isServerRunning ? handleStopServer : handleStartServer}
-            className={`
-              flex items-center space-x-2 px-3 py-1.5 rounded text-sm font-medium transition-colors
-              ${isServerRunning 
-                ? 'bg-red-600 hover:bg-red-700 text-white' 
-                : 'bg-green-600 hover:bg-green-700 text-white'
-              }
-            `}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              backgroundColor: isServerRunning ? '#EF4444' : '#10B981',
+              color: 'white',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = isServerRunning ? '#DC2626' : '#059669';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = isServerRunning ? '#EF4444' : '#10B981';
+            }}
           >
-            {isServerRunning ? <Square className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            {isServerRunning ? <Square size={16} /> : <Play size={16} />}
             {isServerRunning ? 'Stop' : 'Start'}
           </button>
           
           {handlerCount > 0 && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span style={{ fontSize: '14px', color: '#64748B' }}>
               {handlerCount} handlers active
             </span>
           )}
         </div>
         
         {serverError && (
-          <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-red-700 dark:text-red-400 text-sm">
+          <div style={{
+            marginTop: '12px',
+            padding: '12px',
+            backgroundColor: '#FEF2F2',
+            border: '1px solid #FECACA',
+            borderRadius: '8px',
+            color: '#DC2626',
+            fontSize: '14px'
+          }}>
             {serverError}
           </div>
         )}
@@ -330,22 +379,55 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
 
       {/* Add/Edit API Form */}
       {editingApi && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-blue-800 dark:text-blue-300">
+        <div style={{
+          backgroundColor: '#EFF6FF',
+          border: '1px solid #DBEAFE',
+          borderRadius: '12px',
+          padding: '20px'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            marginBottom: '16px' 
+          }}>
+            <h3 style={{ 
+              fontWeight: '600', 
+              fontSize: '16px', 
+              color: '#1E40AF', 
+              margin: 0 
+            }}>
               {editingApi.id ? 'Edit API' : 'Add New API'}
             </h3>
             <button
               onClick={() => setEditingApi(null)}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
             >
-              <X className="w-4 h-4" />
+              <X size={16} color="#3B82F6" />
             </button>
           </div>
           
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+              <label style={{ 
+                display: 'block', 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: '6px' 
+              }}>
+                Name
+              </label>
               <input
                 type="text"
                 value={editingApi.id ? editingApi.name : newApiForm.name}
@@ -353,21 +435,47 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                   ? setEditingApi({...editingApi, name: e.target.value})
                   : setNewApiForm({...newApiForm, name: e.target.value})
                 }
-                className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #D1D5DB',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  color: '#1F2937',
+                  boxSizing: 'border-box'
+                }}
                 placeholder="e.g. Get Users"
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Method</label>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151', 
+                  marginBottom: '6px' 
+                }}>
+                  Method
+                </label>
                 <select
                   value={editingApi.id ? editingApi.method : newApiForm.method}
                   onChange={(e) => editingApi.id
                     ? setEditingApi({...editingApi, method: e.target.value as HttpMethod})
                     : setNewApiForm({...newApiForm, method: e.target.value as HttpMethod})
                   }
-                  className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                    color: '#1F2937',
+                    boxSizing: 'border-box'
+                  }}
                 >
                   <option value="GET">GET</option>
                   <option value="POST">POST</option>
@@ -378,7 +486,15 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Path</label>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151', 
+                  marginBottom: '6px' 
+                }}>
+                  Path
+                </label>
                 <input
                   type="text"
                   value={editingApi.id ? editingApi.path : newApiForm.path}
@@ -386,14 +502,31 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                     ? setEditingApi({...editingApi, path: e.target.value})
                     : setNewApiForm({...newApiForm, path: e.target.value})
                   }
-                  className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                    color: '#1F2937',
+                    boxSizing: 'border-box'
+                  }}
                   placeholder="/api/users"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+              <label style={{ 
+                display: 'block', 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: '6px' 
+              }}>
+                Description
+              </label>
               <input
                 type="text"
                 value={editingApi.id ? editingApi.description || '' : newApiForm.description}
@@ -401,24 +534,65 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                   ? setEditingApi({...editingApi, description: e.target.value})
                   : setNewApiForm({...newApiForm, description: e.target.value})
                 }
-                className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #D1D5DB',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  color: '#1F2937',
+                  boxSizing: 'border-box'
+                }}
                 placeholder="Optional description"
               />
             </div>
             
-            <div className="flex space-x-2 pt-2">
+            <div style={{ display: 'flex', gap: '8px', paddingTop: '8px' }}>
               <button
                 onClick={editingApi.id ? () => {
                   store.updateApi(editingApi.id, editingApi);
                   setEditingApi(null);
                 } : handleSaveNewApi}
-                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#3B82F6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563EB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3B82F6';
+                }}
               >
                 {editingApi.id ? 'Update' : 'Add'} API
               </button>
               <button
                 onClick={() => setEditingApi(null)}
-                className="px-4 py-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 rounded text-sm transition-colors"
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#F3F4F6',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#E5E7EB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#F3F4F6';
+                }}
               >
                 Cancel
               </button>
@@ -429,8 +603,20 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
 
       {/* API List */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-200">Mock APIs ({store.apis.length})</h3>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          marginBottom: '16px' 
+        }}>
+          <h3 style={{ 
+            fontWeight: '600', 
+            fontSize: '16px', 
+            color: '#1E293B', 
+            margin: 0 
+          }}>
+            Mock APIs ({store.apis.length})
+          </h3>
           <button
             onClick={() => setEditingApi({
               id: '',
@@ -443,60 +629,129 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
             })}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              backgroundColor: '#3B82F6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2563EB';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#3B82F6';
+            }}
           >
-            <Plus className="w-4 h-4" />
-            <span>Add API</span>
+            <Plus size={16} />
+            Add API
           </button>
         </div>
 
-        <div className="space-y-2 max-h-64 overflow-y-auto">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflow: 'auto' }}>
           {store.apis.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              <Database className="w-8 h-8 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-              <p>No APIs configured yet</p>
-              <p className="text-sm">Click "Add API" to get started</p>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px 20px', 
+              color: '#64748B' 
+            }}>
+              <Database size={32} color="#94A3B8" style={{ margin: '0 auto 12px' }} />
+              <p style={{ margin: '0 0 4px', fontSize: '16px' }}>No APIs configured yet</p>
+              <p style={{ margin: 0, fontSize: '14px' }}>Click "Add API" to get started</p>
             </div>
           ) : (
             store.apis.map((api) => (
-              <div key={api.id} className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <span className={`
-                      px-2 py-1 rounded text-xs font-medium
-                      ${api.method === 'GET' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300' :
-                        api.method === 'POST' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' :
-                        api.method === 'PUT' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' :
-                        api.method === 'DELETE' ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300' :
-                        'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200'
-                      }
-                    `}>
+              <div key={api.id} style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                padding: '16px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      backgroundColor: api.method === 'GET' ? '#DBEAFE' : 
+                                    api.method === 'POST' ? '#D1FAE5' :
+                                    api.method === 'PUT' ? '#FEF3C7' :
+                                    api.method === 'DELETE' ? '#FEE2E2' :
+                                    '#F3F4F6',
+                      color: api.method === 'GET' ? '#1E40AF' :
+                            api.method === 'POST' ? '#065F46' :
+                            api.method === 'PUT' ? '#92400E' :
+                            api.method === 'DELETE' ? '#B91C1C' :
+                            '#374151'
+                    }}>
                       {api.method}
                     </span>
                     <div>
-                      <div className="font-medium text-sm text-gray-900 dark:text-gray-100">{api.name}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{api.path}</div>
+                      <div style={{ fontWeight: '500', fontSize: '14px', color: '#1F2937' }}>{api.name}</div>
+                      <div style={{ fontSize: '12px', color: '#6B7280' }}>{api.path}</div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-1">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <button
                       onClick={() => setEditingApi(api)}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#F3F4F6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
                     >
-                      <Edit className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <Edit size={14} color="#6B7280" />
                     </button>
                     <button
                       onClick={() => store.deleteApi(api.id)}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#FEE2E2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
                     >
-                      <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
+                      <Trash2 size={14} color="#EF4444" />
                     </button>
                   </div>
                 </div>
                 
                 {api.cases.length > 0 && (
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#6B7280' }}>
                     {api.cases.length} response case(s)
                   </div>
                 )}
@@ -512,43 +767,119 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
     <div
       ref={panelRef}
       onMouseDown={handleMouseDown}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden backdrop-blur-lg"
       style={{
         ...getPositionStyle(),
         width: panelWidth,
         height: isMinimized ? 'auto' : panelHeight,
         maxHeight: '90vh',
-        zIndex: 999999
+        zIndex: 2147483647,
+        position: 'fixed',
+        backgroundColor: '#FFFFFF',
+        borderRadius: '16px',
+        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+        border: '2px solid rgba(0, 0, 0, 0.1)',
+        overflow: 'hidden',
+        backdropFilter: 'blur(20px)',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
       }}
     >
       {/* Header */}
-      <div className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 p-3 flex items-center justify-between cursor-move">
-        <div className="flex items-center space-x-3">
-          <Database className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          <h2 className="font-semibold text-gray-800 dark:text-gray-200">API Mock Manager</h2>
+      <div
+        style={{
+          backgroundColor: '#F8FAFC',
+          borderBottom: '1px solid #E2E8F0',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'move'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: isServerRunning ? '#10B981' : '#3B82F6',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Database size={18} color="white" strokeWidth={2.5} />
+          </div>
+          <h2 style={{ 
+            fontWeight: '600', 
+            fontSize: '16px', 
+            color: '#1E293B', 
+            margin: 0 
+          }}>
+            API Mock Manager
+          </h2>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {minimizable && (
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#E2E8F0';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
-              {isMinimized ? <Maximize2 className="w-4 h-4 text-gray-600 dark:text-gray-300" /> : <Minimize2 className="w-4 h-4 text-gray-600 dark:text-gray-300" />}
+              {isMinimized ? <Maximize2 size={16} color="#64748B" /> : <Minimize2 size={16} color="#64748B" />}
             </button>
           )}
           <button
             onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#FEE2E2';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
-            <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+            <X size={16} color="#EF4444" />
           </button>
         </div>
       </div>
 
       {/* Content */}
       {!isMinimized && (
-        <div className="overflow-y-auto bg-white dark:bg-gray-800" style={{ height: 'calc(100% - 60px)' }}>
+        <div 
+          style={{ 
+            height: 'calc(100% - 65px)', 
+            overflow: 'auto',
+            backgroundColor: '#FFFFFF'
+          }}
+        >
           <SimpleMockGui />
         </div>
       )}
