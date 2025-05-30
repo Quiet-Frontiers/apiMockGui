@@ -15,6 +15,12 @@
   .shadow-slate-200 {
     box-shadow: 0 10px 25px -3px rgba(148, 163, 184, 0.2), 0 4px 6px -2px rgba(148, 163, 184, 0.05);
   }
+  
+  /* API Mock GUI 컨테이너 최고 우선순위 */
+  #api-mock-gui-floating-container {
+    z-index: 2147483647 !important;
+    pointer-events: none !important;
+  }
 }
 
 @layer components {
@@ -39,10 +45,21 @@
   }
   
   /* API Mock GUI floating button 전용 스타일 */
-  .api-mock-floating-button {
-    @apply fixed z-[99999] pointer-events-auto;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+  .api-mock-floating-btn {
+    @apply fixed pointer-events-auto !important;
+    z-index: 2147483647 !important;
+    /* 다크모드에서도 확실히 보이도록 강제 스타일 */
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    /* 클릭 이벤트가 확실히 전달되도록 */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+  
+  .api-mock-floating-btn:active {
+    transform: scale(0.95) !important;
   }
   
   .api-mock-tooltip {
@@ -51,18 +68,60 @@
            opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none;
   }
   
+  /* 다크모드에서도 잘 보이는 border 클래스 */
+  .border-3 {
+    border-width: 3px;
+  }
+  
   /* 메서드별 배지 스타일 */
   .method-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase;
   }
   
-  .method-get { @apply bg-green-100 text-green-800; }
-  .method-post { @apply bg-blue-100 text-blue-800; }
-  .method-put { @apply bg-yellow-100 text-yellow-800; }
-  .method-delete { @apply bg-red-100 text-red-800; }
-  .method-patch { @apply bg-purple-100 text-purple-800; }
-  .method-options { @apply bg-gray-100 text-gray-800; }
-  .method-head { @apply bg-indigo-100 text-indigo-800; }
+  .method-get { 
+    @apply bg-green-100 text-green-800;
+  }
+  .method-post { 
+    @apply bg-blue-100 text-blue-800;
+  }
+  .method-put { 
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  .method-delete { 
+    @apply bg-red-100 text-red-800;
+  }
+  .method-patch { 
+    @apply bg-purple-100 text-purple-800;
+  }
+  .method-options { 
+    @apply bg-gray-100 text-gray-800;
+  }
+  .method-head { 
+    @apply bg-indigo-100 text-indigo-800;
+  }
+  
+  /* 다크모드 메서드 배지 */
+  .dark .method-get { 
+    @apply bg-green-900/50 text-green-300;
+  }
+  .dark .method-post { 
+    @apply bg-blue-900/50 text-blue-300;
+  }
+  .dark .method-put { 
+    @apply bg-yellow-900/50 text-yellow-300;
+  }
+  .dark .method-delete { 
+    @apply bg-red-900/50 text-red-300;
+  }
+  .dark .method-patch { 
+    @apply bg-purple-900/50 text-purple-300;
+  }
+  .dark .method-options { 
+    @apply bg-gray-600 text-gray-200;
+  }
+  .dark .method-head { 
+    @apply bg-indigo-900/50 text-indigo-300;
+  }
   
   /* 상태코드별 배지 스타일 */
   .status-badge {
@@ -78,4 +137,15 @@
   .status-500 { @apply bg-red-100 text-red-800; }
   .status-502 { @apply bg-red-100 text-red-800; }
   .status-503 { @apply bg-red-100 text-red-800; }
+  
+  /* 다크모드 상태코드 배지 */
+  .dark .status-200 { @apply bg-green-900/50 text-green-300; }
+  .dark .status-201 { @apply bg-green-900/50 text-green-300; }
+  .dark .status-400 { @apply bg-red-900/50 text-red-300; }
+  .dark .status-401 { @apply bg-red-900/50 text-red-300; }
+  .dark .status-403 { @apply bg-red-900/50 text-red-300; }
+  .dark .status-404 { @apply bg-orange-900/50 text-orange-300; }
+  .dark .status-500 { @apply bg-red-900/50 text-red-300; }
+  .dark .status-502 { @apply bg-red-900/50 text-red-300; }
+  .dark .status-503 { @apply bg-red-900/50 text-red-300; }
 } 

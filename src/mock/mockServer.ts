@@ -7,6 +7,7 @@ export class MockServer implements MockServerInstance {
   private config: MockServerConfig;
   public isRunning = false;
   private handlerCount = 0;
+  private hasBeenStarted = false; // 한 번이라도 시작된 적이 있는지 추적
 
   constructor(config: MockServerConfig = {}) {
     this.config = {
@@ -32,6 +33,7 @@ export class MockServer implements MockServerInstance {
       });
 
       this.isRunning = true;
+      this.hasBeenStarted = true; // 시작됨을 표시
       console.log('✅ Mock server가 성공적으로 시작되었습니다 (axios-mock-adapter 사용)');
     } catch (error) {
       console.error('❌ Mock server 시작 실패:', error);
@@ -64,9 +66,11 @@ export class MockServer implements MockServerInstance {
     if (!this.mockAdapter) {
       if (this.isRunning) {
         console.error('⚠️  Mock adapter가 초기화되지 않았습니다. Mock server를 재시작해 주세요.');
-      } else {
+      } else if (this.hasBeenStarted) {
+        // 한 번 시작된 적이 있었는데 지금 중지된 경우에만 경고
         console.warn('💡 Mock server가 실행되지 않았습니다. 먼저 서버를 시작해 주세요.');
       }
+      // 초기 로딩 시에는 아무 메시지도 표시하지 않음
       return;
     }
 
@@ -77,7 +81,9 @@ export class MockServer implements MockServerInstance {
     this.createHandlers(apis);
     this.handlerCount = this.getEnabledApiCount(apis);
 
-    console.log(`📡 ${this.handlerCount}개의 Mock API 핸들러가 업데이트되었습니다.`);
+    if (this.handlerCount > 0) {
+      console.log(`📡 ${this.handlerCount}개의 Mock API 핸들러가 업데이트되었습니다.`);
+    }
   }
 
   private createHandlers(apis: MockApi[]): void {

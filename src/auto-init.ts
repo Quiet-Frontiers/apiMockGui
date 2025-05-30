@@ -86,7 +86,7 @@ const initFloatingButton = () => {
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 999999;
+      z-index: 2147483647;
     `;
     
     // Wait for document.body to be available
@@ -123,7 +123,7 @@ const initFloatingButton = () => {
       },
       position: 'bottom-right',
       buttonText: 'API Mock',
-      autoStart: false, // Changed to false for better control
+      autoStart: true,
       draggable: true,
       minimizable: true,
       onServerStart: () => {
