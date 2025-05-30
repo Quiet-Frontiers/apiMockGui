@@ -3,6 +3,7 @@ export declare class MockServer implements MockServerInstance {
     private mockAdapter;
     private config;
     isRunning: boolean;
+    private handlerCount;
     constructor(config?: MockServerConfig);
     start(): Promise<void>;
     stop(): Promise<void>;

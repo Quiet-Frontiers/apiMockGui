@@ -1,14 +1,17 @@
 {
   "name": "api-mock-gui",
-  "version": "1.0.1",
-  "description": "A GUI library for mocking API responses with case management",
-  "type": "module",
+  "version": "2.0.2",
+  "description": "A GUI library for mocking API responses using axios-mock-adapter with case management",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./auto": {
+      "import": "./dist/auto-init.js",
+      "types": "./dist/auto-init.d.ts"
     },
     "./dist/styles.css": "./dist/styles.css"
   },
@@ -47,7 +50,9 @@
   "homepage": "https://github.com/Quiet-Frontiers/apiMockGui#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react-dom": ">=16.8.0",
+    "axios": ">=1.0.0",
+    "axios-mock-adapter": ">=1.20.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",

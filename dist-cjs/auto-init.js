@@ -1,6 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { FloatingApiMockManager } from './components/FloatingApiMockManager';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const react_1 = require("react");
+const client_1 = require("react-dom/client");
+const FloatingApiMockManager_1 = require("./components/FloatingApiMockManager");
 // Global variables
 let isInitialized = false;
 let containerElement = null;
@@ -16,42 +18,20 @@ const initFloatingButton = () => {
         return;
     // Increment attempt counter
     initAttempts++;
-    // 개선된 개발 환경 체크 (더 포괄적인 조건)
-    const isDevelopment = 
-    // 기존 조건들
-    window.location.hostname.includes('localhost') ||
+    // Development environment check (localhost, 127.0.0.1, ports)
+    const isDevelopment = window.location.hostname.includes('localhost') ||
         window.location.hostname.includes('127.0.0.1') ||
         window.location.hostname.includes('192.168.') ||
-        window.location.hostname.includes('10.') ||
-        window.location.hostname.includes('172.') ||
         window.location.port !== '' ||
-        window.location.hostname === '' ||
-        // 추가 개발 환경 조건들
-        window.location.protocol === 'file:' ||
-        window.location.hostname === '0.0.0.0' ||
-        // NODE_ENV 환경변수 체크 (있는 경우)
-        (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-        // 개발 도구가 열려있는 경우 (Chrome DevTools)
-        window.__VUE_DEVTOOLS_GLOBAL_HOOK__ ||
-        window.__REACT_DEVTOOLS_GLOBAL_HOOK__ ||
-        // Vite 개발 서버 감지
-        !!window.__vite_plugin_react_preamble_installed__ ||
-        // webpack 개발 서버 감지  
-        !!window.__webpack_dev_server__ ||
-        // 기타 개발 환경 감지
-        document.location.search.includes('dev=true') ||
-        // 강제 활성화 플래그
-        localStorage.getItem('apiMockGui.forceEnable') === 'true';
-    // 개발 환경이 아닌 경우에도 강제 활성화 옵션 제공
+        window.location.hostname === '';
+    // Skip initialization if not in development
     if (!isDevelopment) {
-        console.log('🔒 API Mock GUI는 개발 환경에서만 자동 활성화됩니다.');
-        console.log('💡 강제 활성화하려면: localStorage.setItem("apiMockGui.forceEnable", "true")');
-        console.log('💡 또는 URL에 ?dev=true 파라미터를 추가하세요.');
+        console.log('🔒 API Mock GUI auto-activation is limited to development environment.');
         return;
     }
     try {
         // Wait for React to be available
-        if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+        if (typeof react_1.default === 'undefined' || typeof client_1.default === 'undefined') {
             if (initAttempts < MAX_INIT_ATTEMPTS) {
                 console.log(`⏳ Waiting for React to load... (attempt ${initAttempts}/${MAX_INIT_ATTEMPTS})`);
                 setTimeout(initFloatingButton, 500);
@@ -96,19 +76,19 @@ const initFloatingButton = () => {
         }
         document.body.appendChild(containerElement);
         // Create React root with better error handling
-        if (typeof ReactDOM.createRoot === 'function') {
-            reactRoot = ReactDOM.createRoot(containerElement);
+        if (typeof client_1.default.createRoot === 'function') {
+            reactRoot = client_1.default.createRoot(containerElement);
         }
         else {
             // Fallback for older React versions
             reactRoot = {
                 render: (element) => {
-                    ReactDOM.render(element, containerElement);
+                    client_1.default.render(element, containerElement);
                 }
             };
         }
         // Render FloatingApiMockManager
-        const floatingManager = React.createElement(FloatingApiMockManager, {
+        const floatingManager = react_1.default.createElement(FloatingApiMockManager_1.FloatingApiMockManager, {
             serverConfig: {
                 baseUrl: window.location.origin,
                 environment: 'browser'

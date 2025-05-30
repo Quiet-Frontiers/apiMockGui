@@ -1,6 +1,11 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-export class MockServer {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MockServer = void 0;
+exports.createMockServer = createMockServer;
+exports.getGlobalMockServer = getGlobalMockServer;
+const axios_1 = require("axios");
+const axios_mock_adapter_1 = require("axios-mock-adapter");
+class MockServer {
     constructor(config = {}) {
         Object.defineProperty(this, "mockAdapter", {
             enumerable: true,
@@ -20,41 +25,34 @@ export class MockServer {
             writable: true,
             value: false
         });
-        Object.defineProperty(this, "handlerCount", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: 0
-        });
         this.config = {
             environment: 'browser',
             onUnhandledRequest: 'bypass',
             ...config
         };
-        console.log('🎭 MockServer 인스턴스가 생성되었습니다.');
     }
     async start() {
         if (this.isRunning) {
-            console.warn('🔄 Mock server가 이미 실행 중입니다.');
+            console.warn('Mock server is already running');
             return;
         }
         try {
             // axios-mock-adapter 인스턴스 생성
-            this.mockAdapter = new MockAdapter(axios, {
+            this.mockAdapter = new axios_mock_adapter_1.default(axios_1.default, {
                 delayResponse: 0,
                 onNoMatch: this.config.onUnhandledRequest === 'bypass' ? 'passthrough' : 'throwException'
             });
             this.isRunning = true;
-            console.log('✅ Mock server가 성공적으로 시작되었습니다 (axios-mock-adapter 사용)');
+            console.log('🎭 Mock server started successfully (axios-mock-adapter)');
         }
         catch (error) {
-            console.error('❌ Mock server 시작 실패:', error);
+            console.error('Failed to start mock server:', error);
             throw error;
         }
     }
     async stop() {
         if (!this.isRunning) {
-            console.warn('⚠️  Mock server가 실행되고 있지 않습니다.');
+            console.warn('Mock server is not running');
             return;
         }
         try {
@@ -63,30 +61,23 @@ export class MockServer {
                 this.mockAdapter = null;
             }
             this.isRunning = false;
-            this.handlerCount = 0;
-            console.log('🛑 Mock server가 중지되었습니다.');
+            console.log('🛑 Mock server stopped');
         }
         catch (error) {
-            console.error('❌ Mock server 중지 실패:', error);
+            console.error('Failed to stop mock server:', error);
             throw error;
         }
     }
     updateHandlers(apis) {
         if (!this.mockAdapter) {
-            if (this.isRunning) {
-                console.error('⚠️  Mock adapter가 초기화되지 않았습니다. Mock server를 재시작해 주세요.');
-            }
-            else {
-                console.warn('💡 Mock server가 실행되지 않았습니다. 먼저 서버를 시작해 주세요.');
-            }
+            console.warn('Mock adapter is not initialized');
             return;
         }
         // 기존 핸들러 초기화
         this.mockAdapter.reset();
         // 새로운 핸들러 등록
         this.createHandlers(apis);
-        this.handlerCount = this.getEnabledApiCount(apis);
-        console.log(`📡 ${this.handlerCount}개의 Mock API 핸들러가 업데이트되었습니다.`);
+        console.log(`📡 Updated ${this.getEnabledApiCount(apis)} mock handlers`);
     }
     createHandlers(apis) {
         if (!this.mockAdapter)
@@ -165,18 +156,19 @@ export class MockServer {
         return apis.filter(api => api.isEnabled && (api.cases.find(c => c.id === api.activeCase) || api.cases.find(c => c.isActive))).length;
     }
     getHandlerCount() {
-        return this.handlerCount;
+        return this.getEnabledApiCount([]);
     }
     getConfig() {
         return { ...this.config };
     }
 }
+exports.MockServer = MockServer;
 // 글로벌 인스턴스를 위한 팩토리 함수
 let globalMockServer = null;
-export function createMockServer(config) {
+function createMockServer(config) {
     return new MockServer(config);
 }
-export function getGlobalMockServer(config) {
+function getGlobalMockServer(config) {
     if (!globalMockServer) {
         globalMockServer = new MockServer(config);
     }

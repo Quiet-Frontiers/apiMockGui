@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* 커스텀 그림자 효과 */
+  .shadow-3xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .shadow-emerald-200 {
+    box-shadow: 0 10px 25px -3px rgba(16, 185, 129, 0.2), 0 4px 6px -2px rgba(16, 185, 129, 0.05);
+  }
+  
+  .shadow-slate-200 {
+    box-shadow: 0 10px 25px -3px rgba(148, 163, 184, 0.2), 0 4px 6px -2px rgba(148, 163, 184, 0.05);
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
@@ -23,6 +38,20 @@
     @apply bg-white rounded-lg shadow-md border border-gray-200;
   }
   
+  /* API Mock GUI floating button 전용 스타일 */
+  .api-mock-floating-button {
+    @apply fixed z-[99999] pointer-events-auto;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .api-mock-tooltip {
+    @apply absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 
+           bg-black/90 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap
+           opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none;
+  }
+  
+  /* 메서드별 배지 스타일 */
   .method-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase;
   }
@@ -35,6 +64,7 @@
   .method-options { @apply bg-gray-100 text-gray-800; }
   .method-head { @apply bg-indigo-100 text-indigo-800; }
   
+  /* 상태코드별 배지 스타일 */
   .status-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }

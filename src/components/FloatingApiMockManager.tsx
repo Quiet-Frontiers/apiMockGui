@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2 } from 'lucide-react';
+import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2, Database, Server, Zap } from 'lucide-react';
 import { ApiMockManagerProps, MockApi, MockResponseCase, HttpMethod, HttpStatus } from '../types';
 import { MockServer } from '../mock/mockServer';
 import { useMockApiStore } from '../hooks/useMockApiStore';
@@ -185,18 +185,52 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
     <button
       onClick={() => setIsOpen(true)}
       className={`
-        relative flex items-center justify-center w-12 h-12
-        ${isServerRunning ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'}
-        text-white rounded-full shadow-lg transition-all duration-200
-        hover:shadow-xl active:scale-95
+        group relative flex items-center justify-center w-14 h-14
+        ${isServerRunning 
+          ? 'bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-emerald-200' 
+          : 'bg-gradient-to-br from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800 shadow-slate-200'
+        }
+        text-white rounded-2xl shadow-2xl transition-all duration-300 ease-out
+        hover:shadow-3xl hover:scale-110 active:scale-95 
+        border-2 border-white/20 backdrop-blur-sm
       `}
       style={{ ...getPositionStyle(), pointerEvents: 'auto' }}
-      title={isServerRunning ? 'API Mock Running' : 'API Mock Stopped'}
+      title={isServerRunning ? '🎭 API Mock 실행 중 - 클릭하여 관리' : '🎭 API Mock 중단됨 - 클릭하여 시작'}
     >
-      {buttonIcon || <Settings className="w-5 h-5" />}
+      {/* 기본 아이콘 - Database가 더 직관적 */}
+      <div className="relative">
+        {buttonIcon || (
+          <div className="flex items-center space-x-0.5">
+            <Database className="w-5 h-5" />
+            <Zap className="w-3 h-3 opacity-80" />
+          </div>
+        )}
+      </div>
+      
+      {/* 실행 상태 표시 - 개선된 애니메이션 */}
       {isServerRunning && (
-        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-white" />
+        <>
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white">
+            <div className="w-full h-full bg-green-400 rounded-full animate-pulse" />
+          </div>
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping opacity-75" />
+        </>
       )}
+      
+      {/* 호버 효과 - 라벨 표시 */}
+      <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 
+                     bg-black/80 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap
+                     opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        {isServerRunning ? 'API Mock 실행 중' : 'API Mock 관리'}
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/80" />
+      </div>
+      
+      {/* 글로우 효과 */}
+      <div className={`absolute inset-0 rounded-2xl transition-opacity duration-300 
+                      ${isServerRunning 
+                        ? 'bg-emerald-400/20 opacity-0 group-hover:opacity-100' 
+                        : 'bg-slate-400/20 opacity-0 group-hover:opacity-100'
+                      }`} />
     </button>
   );
 

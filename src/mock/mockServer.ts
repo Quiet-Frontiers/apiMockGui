@@ -6,6 +6,7 @@ export class MockServer implements MockServerInstance {
   private mockAdapter: MockAdapter | null = null;
   private config: MockServerConfig;
   public isRunning = false;
+  private handlerCount = 0;
 
   constructor(config: MockServerConfig = {}) {
     this.config = {
@@ -13,11 +14,13 @@ export class MockServer implements MockServerInstance {
       onUnhandledRequest: 'bypass',
       ...config
     };
+    
+    console.log('🎭 MockServer 인스턴스가 생성되었습니다.');
   }
 
   async start(): Promise<void> {
     if (this.isRunning) {
-      console.warn('Mock server is already running');
+      console.warn('🔄 Mock server가 이미 실행 중입니다.');
       return;
     }
 
@@ -29,16 +32,16 @@ export class MockServer implements MockServerInstance {
       });
 
       this.isRunning = true;
-      console.log('🎭 Mock server started successfully (axios-mock-adapter)');
+      console.log('✅ Mock server가 성공적으로 시작되었습니다 (axios-mock-adapter 사용)');
     } catch (error) {
-      console.error('Failed to start mock server:', error);
+      console.error('❌ Mock server 시작 실패:', error);
       throw error;
     }
   }
 
   async stop(): Promise<void> {
     if (!this.isRunning) {
-      console.warn('Mock server is not running');
+      console.warn('⚠️  Mock server가 실행되고 있지 않습니다.');
       return;
     }
 
@@ -49,16 +52,21 @@ export class MockServer implements MockServerInstance {
       }
 
       this.isRunning = false;
-      console.log('🛑 Mock server stopped');
+      this.handlerCount = 0;
+      console.log('🛑 Mock server가 중지되었습니다.');
     } catch (error) {
-      console.error('Failed to stop mock server:', error);
+      console.error('❌ Mock server 중지 실패:', error);
       throw error;
     }
   }
 
   updateHandlers(apis: MockApi[]): void {
     if (!this.mockAdapter) {
-      console.warn('Mock adapter is not initialized');
+      if (this.isRunning) {
+        console.error('⚠️  Mock adapter가 초기화되지 않았습니다. Mock server를 재시작해 주세요.');
+      } else {
+        console.warn('💡 Mock server가 실행되지 않았습니다. 먼저 서버를 시작해 주세요.');
+      }
       return;
     }
 
@@ -67,8 +75,9 @@ export class MockServer implements MockServerInstance {
 
     // 새로운 핸들러 등록
     this.createHandlers(apis);
+    this.handlerCount = this.getEnabledApiCount(apis);
 
-    console.log(`📡 Updated ${this.getEnabledApiCount(apis)} mock handlers`);
+    console.log(`📡 ${this.handlerCount}개의 Mock API 핸들러가 업데이트되었습니다.`);
   }
 
   private createHandlers(apis: MockApi[]): void {
@@ -155,7 +164,7 @@ export class MockServer implements MockServerInstance {
   }
 
   getHandlerCount(): number {
-    return this.getEnabledApiCount([]);
+    return this.handlerCount;
   }
 
   getConfig(): MockServerConfig {

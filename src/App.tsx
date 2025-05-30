@@ -1,212 +1,279 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'api-mock-gui/auto'; // 🎯 이 한 줄만으로 floating button이 자동으로 나타납니다!
 import './App.css';
 
 function App() {
-  const TestButtons = () => (
-    <div className="fixed bottom-4 left-4 bg-white p-4 rounded-lg shadow-lg border max-w-xs">
-      <h4 className="font-semibold mb-2">🧪 API 테스트</h4>
-      <div className="space-y-2">
-        <button
-          onClick={async () => {
-            try {
-              const response = await axios.get('/api/users');
-              console.log('Mock Response:', response.data);
-              alert(`Mock 응답 받음: ${JSON.stringify(response.data, null, 2)}`);
-            } catch (err: any) {
-              console.error('Error:', err);
-              alert(`Error: ${err.message}`);
-            }
-          }}
-          className="block w-full px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200"
-        >
-          GET /api/users
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              const response = await axios.get('/api/posts');
-              console.log('Mock Response:', response.data);
-              alert(`Mock 응답 받음: ${JSON.stringify(response.data, null, 2)}`);
-            } catch (err: any) {
-              console.error('Error:', err);
-              alert(`Error: ${err.message}`);
-            }
-          }}
-          className="block w-full px-3 py-1 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200"
-        >
-          GET /api/posts
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              const response = await axios.post('/api/posts', {
-                title: 'Test Post',
-                content: 'Test content'
-              });
-              console.log('Mock Response:', response.data);
-              alert(`Mock 응답 받음: ${JSON.stringify(response.data, null, 2)}`);
-            } catch (err: any) {
-              console.error('Error:', err);
-              alert(`Error: ${err.message}`);
-            }
-          }}
-          className="block w-full px-3 py-1 bg-purple-100 text-purple-800 rounded text-sm hover:bg-purple-200"
-        >
-          POST /api/posts
-        </button>
-        <div className="border-t pt-2 mt-2">
-          <button
-            onClick={() => {
-              console.log('💡 개발자 도구의 Network 탭에서 요청을 확인하세요!');
-              console.log('🎭 우측 하단의 floating button을 클릭하여 Mock GUI를 열 수 있습니다.');
-              alert('개발자 도구(F12) > Network 탭에서 axios Mock된 응답을 확인할 수 있습니다.');
-            }}
-            className="block w-full px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200"
-          >
-            💡 도움말
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const [response, setResponse] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 디버깅: auto-init 상태 확인
+  useEffect(() => {
+    console.log('🔍 API Mock GUI Auto-init 디버깅:');
+    console.log('- window.apiMockGuiInit:', typeof (window as any).apiMockGuiInit);
+    console.log('- window.apiMockGuiCleanup:', typeof (window as any).apiMockGuiCleanup);
+    console.log('- window.API_MOCK_AUTO_INIT:', (window as any).API_MOCK_AUTO_INIT);
+    console.log('- hostname:', window.location.hostname);
+    console.log('- isDev:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    
+    // floating button element 확인
+    setTimeout(() => {
+      const floatingButton = document.querySelector('[data-api-mock-floating-button]');
+      console.log('- floating button element:', floatingButton);
+      if (!floatingButton) {
+        console.warn('⚠️ Floating button not found! Manually initializing...');
+        if (typeof (window as any).apiMockGuiInit === 'function') {
+          (window as any).apiMockGuiInit();
+        }
+      }
+    }, 1000);
+  }, []);
+
+  const makeApiCall = async (method: string, url: string, data?: any) => {
+    setLoading(true);
+    setError(null);
+    setResponse(null);
+
+    try {
+      let result;
+      switch (method) {
+        case 'GET':
+          result = await axios.get(url);
+          break;
+        case 'POST':
+          result = await axios.post(url, data);
+          break;
+        case 'PUT':
+          result = await axios.put(url, data);
+          break;
+        case 'DELETE':
+          result = await axios.delete(url);
+          break;
+        default:
+          result = await axios.get(url);
+      }
+      setResponse(result.data);
+      console.log('API Response:', result.data);
+    } catch (err: any) {
+      setError(err.message);
+      console.error('API Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="App">
-      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">🎭 Auto API Mock GUI 테스트</h1>
-          <p className="text-blue-100">
-            라이브러리를 import하기만 하면 floating button이 자동으로 나타납니다!
-          </p>
+    <div className="App" style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <header style={{ marginBottom: '30px' }}>
+        <h1>🎭 API Mock GUI 테스트</h1>
+        <p style={{ color: '#666' }}>
+          axios-mock-adapter 기반으로 업데이트된 API Mock GUI를 테스트해보세요!
+        </p>
+        <div style={{ 
+          backgroundColor: '#e3f2fd', 
+          padding: '15px', 
+          borderRadius: '8px', 
+          marginTop: '15px',
+          borderLeft: '4px solid #2196f3'
+        }}>
+          <h3>🔧 사용 방법:</h3>
+          <ol style={{ textAlign: 'left', marginLeft: '20px' }}>
+            <li>우측 하단의 floating button 클릭</li>
+            <li>"Start" 버튼으로 Mock Server 시작</li>
+            <li>"Add API" 버튼으로 새 API 추가</li>
+            <li>아래 테스트 버튼들로 API 호출 테스트</li>
+          </ol>
         </div>
       </header>
 
-      <main className="p-8 bg-gray-50 min-h-screen">
-        <div className="max-w-4xl mx-auto">
-          {/* 메인 설명 카드 */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">✨ 자동 초기화 기능</h2>
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <code className="text-sm text-gray-800">
-                import 'api-mock-gui/auto'; // 🎯 이 한 줄만으로 완료!
-              </code>
-            </div>
-            <p className="text-gray-600 mb-4">
-              위 import 문 하나만으로 API Mock GUI가 자동으로 활성화됩니다. 
-              우측 하단에 floating button이 나타나며, 클릭하면 별도의 팝업 창으로 GUI가 열립니다.
-            </p>
+      <main>
+        <section style={{ marginBottom: '30px' }}>
+          <h2>🧪 API 테스트 버튼들</h2>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '15px',
+            marginBottom: '20px'
+          }}>
+            <button
+              onClick={() => makeApiCall('GET', '/api/users')}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#4caf50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+              disabled={loading}
+            >
+              GET /api/users
+            </button>
+
+            <button
+              onClick={() => makeApiCall('GET', '/api/posts')}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#2196f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+              disabled={loading}
+            >
+              GET /api/posts
+            </button>
+
+            <button
+              onClick={() => makeApiCall('POST', '/api/posts', {
+                title: 'Test Post',
+                content: 'This is a test post from React app',
+                author: 'Test User'
+              })}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#ff9800',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+              disabled={loading}
+            >
+              POST /api/posts
+            </button>
+
+            <button
+              onClick={() => makeApiCall('GET', '/api/users/1')}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#9c27b0',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+              disabled={loading}
+            >
+              GET /api/users/1
+            </button>
+
+            <button
+              onClick={() => makeApiCall('PUT', '/api/users/1', {
+                name: 'Updated User',
+                email: 'updated@example.com'
+              })}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#607d8b',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+              disabled={loading}
+            >
+              PUT /api/users/1
+            </button>
+
+            <button
+              onClick={() => makeApiCall('DELETE', '/api/posts/1')}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#f44336',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+              disabled={loading}
+            >
+              DELETE /api/posts/1
+            </button>
+          </div>
+        </section>
+
+        <section>
+          <h2>📊 응답 결과</h2>
+          <div style={{
+            minHeight: '200px',
+            backgroundColor: '#f5f5f5',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #ddd'
+          }}>
+            {loading && (
+              <div style={{ textAlign: 'center', color: '#666' }}>
+                ⏳ Loading...
+              </div>
+            )}
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">🚀 주요 특징:</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• 🎯 One-line import로 즉시 활성화</li>
-                  <li>• 🔄 개발 환경에서만 자동 활성화</li>
-                  <li>• 🪟 별도 팝업 창으로 GUI 제공</li>
-                  <li>• 📡 axios-mock-adapter 기반 요청 차단</li>
-                  <li>• 🎮 실시간 Mock 서버 제어</li>
-                </ul>
+            {error && (
+              <div style={{
+                backgroundColor: '#ffebee',
+                color: '#c62828',
+                padding: '15px',
+                borderRadius: '6px',
+                border: '1px solid #ef5350'
+              }}>
+                <strong>❌ Error:</strong> {error}
               </div>
+            )}
+            
+            {response && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">📝 사용법:</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>1. 우측 하단 floating button 확인</li>
-                  <li>2. 버튼 클릭으로 팝업 창 열기</li>
-                  <li>3. Mock 서버 시작/중지</li>
-                  <li>4. 좌측 테스트 버튼으로 확인</li>
-                  <li>5. Network 탭에서 요청 모니터링</li>
-                </ul>
+                <h3 style={{ color: '#2e7d32', marginBottom: '10px' }}>✅ Success Response:</h3>
+                <pre style={{
+                  backgroundColor: '#e8f5e8',
+                  padding: '15px',
+                  borderRadius: '6px',
+                  overflow: 'auto',
+                  fontSize: '14px',
+                  border: '1px solid #4caf50'
+                }}>
+                  {JSON.stringify(response, null, 2)}
+                </pre>
               </div>
-            </div>
+            )}
+            
+            {!loading && !error && !response && (
+              <div style={{ textAlign: 'center', color: '#999' }}>
+                위의 테스트 버튼을 클릭해서 API를 호출해보세요.
+              </div>
+            )}
           </div>
+        </section>
 
-          {/* 기술 상세 */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">🔧 기술 특징</h3>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">자동 환경 감지</h4>
-                    <p className="text-sm text-gray-600">localhost, 127.0.0.1 등 개발 환경 자동 감지</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">팝업 창 통신</h4>
-                    <p className="text-sm text-gray-600">부모-자식 창 간 postMessage 통신</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">MSW 통합</h4>
-                    <p className="text-sm text-gray-600">Service Worker를 통한 실제 네트워크 차단</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">🎛️ 제어 옵션</h3>
-              <div className="space-y-3">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-1">전역 제어:</h4>
-                  <code className="text-xs text-gray-600">
-                    window.apiMockGuiInit() // 수동 활성화<br/>
-                    window.apiMockGuiCleanup() // 정리
-                  </code>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-1">비활성화:</h4>
-                  <code className="text-xs text-gray-600">
-                    window.API_MOCK_AUTO_INIT = false;
-                  </code>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-1">설정 커스터마이징:</h4>
-                  <code className="text-xs text-gray-600">
-                    window.API_MOCK_AUTO_INIT = {'{'}position: 'top-left'{'}'};
-                  </code>
-                </div>
-              </div>
-            </div>
+        <section style={{ marginTop: '30px' }}>
+          <h2>💡 테스트 가이드</h2>
+          <div style={{ backgroundColor: '#fff3e0', padding: '20px', borderRadius: '8px' }}>
+            <h3>🎯 axios-mock-adapter 특징:</h3>
+            <ul style={{ textAlign: 'left', lineHeight: '1.6' }}>
+              <li>✅ <strong>빠른 응답:</strong> 네트워크 요청 없이 즉시 응답</li>
+              <li>✅ <strong>axios 전용:</strong> axios 요청만 가로채기</li>
+              <li>✅ <strong>간단한 설정:</strong> Service Worker 설정 불필요</li>
+              <li>⚠️ <strong>Network 탭:</strong> 실제 네트워크 요청이 표시되지 않음</li>
+            </ul>
+            
+            <h3 style={{ marginTop: '20px' }}>🔍 확인 방법:</h3>
+            <ul style={{ textAlign: 'left', lineHeight: '1.6' }}>
+              <li>Console 로그에서 Mock 응답 확인</li>
+              <li>이 페이지의 응답 결과 섹션에서 확인</li>
+              <li>Mock GUI에서 설정한 응답과 일치하는지 확인</li>
+            </ul>
           </div>
-
-          {/* 상태 표시 */}
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-medium text-blue-900 mb-2">📊 현재 상태</h3>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="text-blue-800 font-medium">환경:</span>
-                <span className="ml-2 text-blue-700">
-                  {window.location.hostname === 'localhost' ? '개발 모드' : '프로덕션'}
-                </span>
-              </div>
-              <div>
-                <span className="text-blue-800 font-medium">Host:</span>
-                <span className="ml-2 text-blue-700">{window.location.hostname}</span>
-              </div>
-              <div>
-                <span className="text-blue-800 font-medium">Port:</span>
-                <span className="ml-2 text-blue-700">{window.location.port || '80'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        </section>
       </main>
 
-      <TestButtons />
+      {/* 우측 하단에 floating button이 자동으로 나타납니다! */}
     </div>
   );
 }
