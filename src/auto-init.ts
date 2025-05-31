@@ -213,16 +213,50 @@ const loadStyles = () => {
   if (typeof document === 'undefined') return;
   
   // 이미 로드된 스타일시트가 있는지 확인
-  if (document.querySelector('link[data-api-mock-gui-styles]')) return;
+  if (document.querySelector('link[data-api-mock-gui-styles]') || 
+      document.querySelector('style[data-api-mock-gui-styles]')) return;
   
   try {
-    // CSS를 동적으로 삽입
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/api-mock-gui/dist/styles.css'; // 패키지에서 CSS 로드 시도
-    link.setAttribute('data-api-mock-gui-styles', 'true');
-    document.head.appendChild(link);
+    // 인라인 CSS를 사용하여 스타일 적용 (패키지 import 문제 방지)
+    const style = document.createElement('style');
+    style.setAttribute('data-api-mock-gui-styles', 'true');
+    style.textContent = `
+      /* API Mock GUI 기본 스타일 */
+      .api-mock-floating-btn {
+        all: initial;
+        position: fixed !important;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        user-select: none !important;
+      }
+      
+      .api-mock-panel {
+        all: initial;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+        position: fixed !important;
+        z-index: 2147483646 !important;
+        background: white !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        pointer-events: auto !important;
+      }
+      
+      .api-mock-panel button {
+        font-family: inherit !important;
+        cursor: pointer !important;
+        outline: none !important;
+      }
+      
+      .api-mock-panel input, .api-mock-panel select, .api-mock-panel textarea {
+        font-family: inherit !important;
+        outline: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    console.log('✅ API Mock GUI 기본 스타일이 로드되었습니다.');
   } catch (error) {
-    console.warn('Could not load API Mock GUI styles:', error);
+    console.warn('⚠️ API Mock GUI 스타일 로드 실패:', error);
   }
 }; 

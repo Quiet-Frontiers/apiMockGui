@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.8] - 2024-12-19
+
+### 🐛 Bug Fixes
+- **Fixed CSS Import Error**: Removed problematic CSS import requirement - styles are now automatically included via inline CSS
+- **Fixed GUI Button Issues**: Resolved button click events not working in FloatingApiMockManager
+  - Added explicit `pointerEvents: 'auto'` to all interactive elements
+  - Improved event handling with `preventDefault()` and `stopPropagation()`
+  - Added console logging for debugging button interactions
+- **Improved Event Handling**: Enhanced click handlers for Start/Stop, Add API, Save, and Cancel buttons
+- **Updated Documentation**: Removed CSS import instructions from README and USAGE_GUIDE
+
+### 📦 Package Exports
+- **Fixed CSS Export**: Simplified CSS export paths in package.json for better compatibility
+- **Inline Styles**: CSS is now automatically injected via JavaScript, eliminating import issues
+
+### 🔧 Technical Improvements
+- Enhanced auto-init.ts with better CSS loading mechanism
+- Improved FloatingApiMockManager component with explicit pointer-events
+- Better error handling and logging for debugging
+
 ## [2.0.7] - 2024-12-19
 
 ### 🚀 Major Enhancement

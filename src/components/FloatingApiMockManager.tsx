@@ -117,9 +117,17 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!draggable || !panelRef.current) return;
     
-    // 버튼 클릭인 경우 드래그 방지
-    if ((e.target as HTMLElement).closest('button')) return;
+    // 버튼이나 인터랙티브 요소 클릭인 경우 드래그 방지
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || 
+        target.closest('input') || 
+        target.closest('select') || 
+        target.closest('textarea')) {
+      console.log('🚫 드래그 방지: 인터랙티브 요소 클릭됨');
+      return;
+    }
     
+    console.log('🖱️ 드래그 시작');
     setIsDragging(true);
     const rect = panelRef.current.getBoundingClientRect();
     dragStartRef.current = {
@@ -292,102 +300,17 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
     setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
   };
 
-  const SimpleMockGui = () => (
-    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Server Controls */}
-      <div style={{
-        backgroundColor: '#F1F5F9',
-        padding: '20px',
-        borderRadius: '12px',
-        border: '1px solid #E2E8F0'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          marginBottom: '16px' 
-        }}>
-          <h3 style={{ 
-            fontWeight: '600', 
-            fontSize: '16px', 
-            color: '#1E293B', 
-            margin: 0 
-          }}>
-            Mock Server
-          </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isServerRunning ? (
-              <Wifi size={16} color="#10B981" />
-            ) : (
-              <WifiOff size={16} color="#94A3B8" />
-            )}
-            <span style={{ 
-              fontSize: '14px', 
-              color: isServerRunning ? '#10B981' : '#64748B',
-              fontWeight: '500'
-            }}>
-              {isServerRunning ? 'Running' : 'Stopped'}
-            </span>
-          </div>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={isServerRunning ? handleStopServer : handleStartServer}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              backgroundColor: isServerRunning ? '#EF4444' : '#10B981',
-              color: 'white',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = isServerRunning ? '#DC2626' : '#059669';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = isServerRunning ? '#EF4444' : '#10B981';
-            }}
-          >
-            {isServerRunning ? <Square size={16} /> : <Play size={16} />}
-            {isServerRunning ? 'Stop' : 'Start'}
-          </button>
-          
-          {handlerCount > 0 && (
-            <span style={{ fontSize: '14px', color: '#64748B' }}>
-              {handlerCount} handlers active
-            </span>
-          )}
-        </div>
-        
-        {serverError && (
-          <div style={{
-            marginTop: '12px',
-            padding: '12px',
-            backgroundColor: '#FEF2F2',
-            border: '1px solid #FECACA',
-            borderRadius: '8px',
-            color: '#DC2626',
-            fontSize: '14px'
-          }}>
-            {serverError}
-          </div>
-        )}
-      </div>
-
-      {/* Add/Edit API Form */}
-      {editingApi && (
+  const SimpleMockGui = () => {
+    console.log('🎨 SimpleMockGui 렌더링, editingApi:', editingApi);
+    
+    return (
+      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Server Controls */}
         <div style={{
-          backgroundColor: '#EFF6FF',
-          border: '1px solid #DBEAFE',
+          backgroundColor: '#F1F5F9',
+          padding: '20px',
           borderRadius: '12px',
-          padding: '20px'
+          border: '1px solid #E2E8F0'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -398,62 +321,129 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
             <h3 style={{ 
               fontWeight: '600', 
               fontSize: '16px', 
-              color: '#1E40AF', 
+              color: '#1E293B', 
               margin: 0 
             }}>
-              {editingApi.id ? 'Edit API' : 'Add New API'}
+              Mock Server
             </h3>
-            <button
-              onClick={() => setEditingApi(null)}
-              style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '4px',
-                border: 'none',
-                backgroundColor: 'transparent',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <X size={16} color="#3B82F6" />
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isServerRunning ? (
+                <Wifi size={16} color="#10B981" />
+              ) : (
+                <WifiOff size={16} color="#94A3B8" />
+              )}
+              <span style={{ 
+                fontSize: '14px', 
+                color: isServerRunning ? '#10B981' : '#64748B',
+                fontWeight: '500'
+              }}>
+                {isServerRunning ? 'Running' : 'Stopped'}
+              </span>
+            </div>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: '14px', 
-                fontWeight: '500', 
-                color: '#374151', 
-                marginBottom: '6px' 
-              }}>
-                Name
-              </label>
-              <input
-                type="text"
-                value={editingApi.id ? editingApi.name : newApiForm.name}
-                onChange={(e) => editingApi.id 
-                  ? setEditingApi({...editingApi, name: e.target.value})
-                  : setNewApiForm({...newApiForm, name: e.target.value})
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Start/Stop button clicked, isServerRunning:', isServerRunning);
+                if (isServerRunning) {
+                  handleStopServer();
+                } else {
+                  handleStartServer();
                 }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                backgroundColor: isServerRunning ? '#EF4444' : '#10B981',
+                color: 'white',
+                transition: 'background-color 0.2s',
+                pointerEvents: 'auto',
+                outline: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isServerRunning ? '#DC2626' : '#059669';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isServerRunning ? '#EF4444' : '#10B981';
+              }}
+            >
+              {isServerRunning ? <Square size={16} /> : <Play size={16} />}
+              {isServerRunning ? 'Stop' : 'Start'}
+            </button>
+            
+            {handlerCount > 0 && (
+              <span style={{ fontSize: '14px', color: '#64748B' }}>
+                {handlerCount} handlers active
+              </span>
+            )}
+          </div>
+          
+          {serverError && (
+            <div style={{
+              marginTop: '12px',
+              padding: '12px',
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: '8px',
+              color: '#DC2626',
+              fontSize: '14px'
+            }}>
+              {serverError}
+            </div>
+          )}
+        </div>
+
+        {/* Add/Edit API Form */}
+        {editingApi && (
+          <div style={{
+            backgroundColor: '#EFF6FF',
+            border: '1px solid #DBEAFE',
+            borderRadius: '12px',
+            padding: '20px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              marginBottom: '16px' 
+            }}>
+              <h3 style={{ 
+                fontWeight: '600', 
+                fontSize: '16px', 
+                color: '#1E40AF', 
+                margin: 0 
+              }}>
+                {editingApi.id ? 'Edit API' : 'Add New API'}
+              </h3>
+              <button
+                onClick={() => setEditingApi(null)}
                 style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #D1D5DB',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
-                  color: '#1F2937',
-                  boxSizing: 'border-box'
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
-                placeholder="e.g. Get Users"
-              />
+              >
+                <X size={16} color="#3B82F6" />
+              </button>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ 
                   display: 'block', 
@@ -462,13 +452,14 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                   color: '#374151', 
                   marginBottom: '6px' 
                 }}>
-                  Method
+                  Name
                 </label>
-                <select
-                  value={editingApi.id ? editingApi.method : newApiForm.method}
-                  onChange={(e) => editingApi.id
-                    ? setEditingApi({...editingApi, method: e.target.value as HttpMethod})
-                    : setNewApiForm({...newApiForm, method: e.target.value as HttpMethod})
+                <input
+                  type="text"
+                  value={editingApi.id ? editingApi.name : newApiForm.name}
+                  onChange={(e) => editingApi.id 
+                    ? setEditingApi({...editingApi, name: e.target.value})
+                    : setNewApiForm({...newApiForm, name: e.target.value})
                   }
                   style={{
                     width: '100%',
@@ -480,13 +471,76 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                     color: '#1F2937',
                     boxSizing: 'border-box'
                   }}
-                >
-                  <option value="GET">GET</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                  <option value="DELETE">DELETE</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
+                  placeholder="e.g. Get Users"
+                />
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: '#374151', 
+                    marginBottom: '6px' 
+                  }}>
+                    Method
+                  </label>
+                  <select
+                    value={editingApi.id ? editingApi.method : newApiForm.method}
+                    onChange={(e) => editingApi.id
+                      ? setEditingApi({...editingApi, method: e.target.value as HttpMethod})
+                      : setNewApiForm({...newApiForm, method: e.target.value as HttpMethod})
+                    }
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: '1px solid #D1D5DB',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white',
+                      color: '#1F2937',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: '#374151', 
+                    marginBottom: '6px' 
+                  }}>
+                    Path
+                  </label>
+                  <input
+                    type="text"
+                    value={editingApi.id ? editingApi.path : newApiForm.path}
+                    onChange={(e) => editingApi.id
+                      ? setEditingApi({...editingApi, path: e.target.value})
+                      : setNewApiForm({...newApiForm, path: e.target.value})
+                    }
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: '1px solid #D1D5DB',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white',
+                      color: '#1F2937',
+                      boxSizing: 'border-box'
+                    }}
+                    placeholder="/api/users"
+                  />
+                </div>
               </div>
               
               <div>
@@ -497,14 +551,14 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                   color: '#374151', 
                   marginBottom: '6px' 
                 }}>
-                  Path
+                  Description
                 </label>
                 <input
                   type="text"
-                  value={editingApi.id ? editingApi.path : newApiForm.path}
+                  value={editingApi.id ? editingApi.description || '' : newApiForm.description}
                   onChange={(e) => editingApi.id
-                    ? setEditingApi({...editingApi, path: e.target.value})
-                    : setNewApiForm({...newApiForm, path: e.target.value})
+                    ? setEditingApi({...editingApi, description: e.target.value})
+                    : setNewApiForm({...newApiForm, description: e.target.value})
                   }
                   style={{
                     width: '100%',
@@ -516,313 +570,289 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                     color: '#1F2937',
                     boxSizing: 'border-box'
                   }}
-                  placeholder="/api/users"
+                  placeholder="Optional description"
                 />
               </div>
-            </div>
-            
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: '14px', 
-                fontWeight: '500', 
-                color: '#374151', 
-                marginBottom: '6px' 
-              }}>
-                Description
-              </label>
-              <input
-                type="text"
-                value={editingApi.id ? editingApi.description || '' : newApiForm.description}
-                onChange={(e) => editingApi.id
-                  ? setEditingApi({...editingApi, description: e.target.value})
-                  : setNewApiForm({...newApiForm, description: e.target.value})
-                }
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #D1D5DB',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
-                  color: '#1F2937',
-                  boxSizing: 'border-box'
-                }}
-                placeholder="Optional description"
-              />
-            </div>
-            
-            <div style={{ display: 'flex', gap: '8px', paddingTop: '8px' }}>
-              <button
-                onClick={editingApi.id ? () => {
-                  store.updateApi(editingApi.id, editingApi);
-                  setEditingApi(null);
-                } : handleSaveNewApi}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#3B82F6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2563EB';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#3B82F6';
-                }}
-              >
-                {editingApi.id ? 'Update' : 'Add'} API
-              </button>
-              <button
-                onClick={() => setEditingApi(null)}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#F3F4F6',
-                  color: '#374151',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#E5E7EB';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#F3F4F6';
-                }}
-              >
-                Cancel
-              </button>
+              
+              <div style={{ display: 'flex', gap: '8px', paddingTop: '8px' }}>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('API Save button clicked, editingApi.id:', editingApi.id);
+                    if (editingApi.id) {
+                      store.updateApi(editingApi.id, editingApi);
+                      setEditingApi(null);
+                    } else {
+                      handleSaveNewApi();
+                    }
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#3B82F6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    pointerEvents: 'auto',
+                    outline: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2563EB';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#3B82F6';
+                  }}
+                >
+                  {editingApi.id ? 'Update' : 'Add'} API
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('API Cancel button clicked');
+                    setEditingApi(null);
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#F3F4F6',
+                    color: '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    pointerEvents: 'auto',
+                    outline: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#E5E7EB';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F3F4F6';
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* API List */}
-      <div>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          marginBottom: '16px' 
-        }}>
-          <h3 style={{ 
-            fontWeight: '600', 
-            fontSize: '16px', 
-            color: '#1E293B', 
-            margin: 0 
+        {/* API List */}
+        <div>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            marginBottom: '16px' 
           }}>
-            Mock APIs ({store.apis.length})
-          </h3>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setEditingApi({
-                id: '',
-                name: '',
-                method: 'GET' as HttpMethod,
-                path: '',
-                description: '',
-                cases: [],
-                isEnabled: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              });
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              backgroundColor: '#3B82F6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              outline: 'none'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#2563EB';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#3B82F6';
-            }}
-          >
-            <Plus size={16} />
-            Add API
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflow: 'auto' }}>
-          {store.apis.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '40px 20px', 
-              color: '#64748B' 
+            <h3 style={{ 
+              fontWeight: '600', 
+              fontSize: '16px', 
+              color: '#1E293B', 
+              margin: 0 
             }}>
-              <Database size={32} color="#94A3B8" style={{ margin: '0 auto 12px' }} />
-              <p style={{ margin: '0 0 4px', fontSize: '16px' }}>No APIs configured yet</p>
-              <p style={{ margin: 0, fontSize: '14px' }}>Click "Add API" to get started</p>
-            </div>
-          ) : (
-            store.apis.map((api) => (
-              <div key={api.id} style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E2E8F0',
-                borderRadius: '8px',
-                padding: '16px'
+              Mock APIs ({store.apis.length})
+            </h3>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Add API button clicked');
+                setEditingApi({
+                  id: '',
+                  name: '',
+                  method: 'GET' as HttpMethod,
+                  path: '',
+                  description: '',
+                  cases: [],
+                  isEnabled: true,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString()
+                });
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: '#3B82F6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                outline: 'none',
+                pointerEvents: 'auto'
+              }}
+              onMouseEnter={(e) => {
+                console.log('Add API button hovered');
+                e.currentTarget.style.backgroundColor = '#2563EB';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3B82F6';
+              }}
+            >
+              <Plus size={16} />
+              Add API
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflow: 'auto' }}>
+            {store.apis.length === 0 ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px 20px', 
+                color: '#64748B' 
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      backgroundColor: api.method === 'GET' ? '#DBEAFE' : 
-                                    api.method === 'POST' ? '#D1FAE5' :
-                                    api.method === 'PUT' ? '#FEF3C7' :
-                                    api.method === 'DELETE' ? '#FEE2E2' :
-                                    '#F3F4F6',
-                      color: api.method === 'GET' ? '#1E40AF' :
-                            api.method === 'POST' ? '#065F46' :
-                            api.method === 'PUT' ? '#92400E' :
-                            api.method === 'DELETE' ? '#B91C1C' :
-                            '#374151'
-                    }}>
-                      {api.method}
-                    </span>
-                    <div>
-                      <div style={{ fontWeight: '500', fontSize: '14px', color: '#1F2937' }}>{api.name}</div>
-                      <div style={{ fontSize: '12px', color: '#6B7280' }}>{api.path}</div>
+                <Database size={32} color="#94A3B8" style={{ margin: '0 auto 12px' }} />
+                <p style={{ margin: '0 0 4px', fontSize: '16px' }}>No APIs configured yet</p>
+                <p style={{ margin: 0, fontSize: '14px' }}>Click "Add API" to get started</p>
+              </div>
+            ) : (
+              store.apis.map((api) => (
+                <div key={api.id} style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '8px',
+                  padding: '16px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        backgroundColor: api.method === 'GET' ? '#DBEAFE' : 
+                                      api.method === 'POST' ? '#D1FAE5' :
+                                      api.method === 'PUT' ? '#FEF3C7' :
+                                      api.method === 'DELETE' ? '#FEE2E2' :
+                                      '#F3F4F6',
+                        color: api.method === 'GET' ? '#1E40AF' :
+                              api.method === 'POST' ? '#065F46' :
+                              api.method === 'PUT' ? '#92400E' :
+                              api.method === 'DELETE' ? '#B91C1C' :
+                              '#374151'
+                      }}>
+                        {api.method}
+                      </span>
+                      <div>
+                        <div style={{ fontWeight: '500', fontSize: '14px', color: '#1F2937' }}>{api.name}</div>
+                        <div style={{ fontSize: '12px', color: '#6B7280' }}>{api.path}</div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button
+                        onClick={() => setEditingApi(api)}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '4px',
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#F3F4F6';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <Edit size={14} color="#6B7280" />
+                      </button>
+                      <button
+                        onClick={() => store.deleteApi(api.id)}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '4px',
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#FEE2E2';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <Trash2 size={14} color="#EF4444" />
+                      </button>
                     </div>
                   </div>
                   
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <button
-                      onClick={() => setEditingApi(api)}
-                      style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '4px',
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F3F4F6';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <Edit size={14} color="#6B7280" />
-                    </button>
-                    <button
-                      onClick={() => store.deleteApi(api.id)}
-                      style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '4px',
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#FEE2E2';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <Trash2 size={14} color="#EF4444" />
-                    </button>
-                  </div>
+                  {api.cases.length > 0 && (
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#6B7280' }}>
+                      {api.cases.length} response case(s)
+                    </div>
+                  )}
                 </div>
-                
-                {api.cases.length > 0 && (
-                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#6B7280' }}>
-                    {api.cases.length} response case(s)
-                  </div>
-                )}
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const FloatingPanel = () => (
     <div
       ref={panelRef}
-      onMouseDown={handleMouseDown}
       style={{
+        position: 'fixed',
         ...getPositionStyle(),
         width: panelWidth,
-        height: isMinimized ? 'auto' : panelHeight,
-        maxHeight: '90vh',
-        zIndex: 2147483647,
-        position: 'fixed',
-        backgroundColor: '#FFFFFF',
-        borderRadius: '16px',
-        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-        border: '2px solid rgba(0, 0, 0, 0.1)',
+        height: panelHeight,
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        zIndex: 2147483646,
         overflow: 'hidden',
-        backdropFilter: 'blur(20px)',
-        fontFamily: 'system-ui, -apple-system, sans-serif'
+        pointerEvents: 'auto',
+        userSelect: 'none',
       }}
+      className="api-mock-panel"
     >
-      {/* Header */}
-      <div
+      {/* Header - 여기서만 드래그 가능 */}
+      <div 
         style={{
-          backgroundColor: '#F8FAFC',
-          borderBottom: '1px solid #E2E8F0',
-          padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          cursor: 'move'
+          padding: '16px 20px',
+          borderBottom: '1px solid #E2E8F0',
+          cursor: draggable ? 'move' : 'default',
+          pointerEvents: 'auto'
         }}
+        onMouseDown={draggable ? handleMouseDown : undefined}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              backgroundColor: isServerRunning ? '#10B981' : '#3B82F6',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Database size={18} color="white" strokeWidth={2.5} />
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Database size={20} color="#3B82F6" />
           <h2 style={{ 
-            fontWeight: '600', 
+            margin: 0, 
             fontSize: '16px', 
-            color: '#1E293B', 
-            margin: 0 
+            fontWeight: '600', 
+            color: '#1F2937' 
           }}>
             API Mock Manager
           </h2>
@@ -834,6 +864,7 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🔧 Minimize/Maximize 버튼 클릭됨');
                 setIsMinimized(!isMinimized);
               }}
               style={{
@@ -846,23 +877,28 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'background-color 0.2s',
-                outline: 'none'
+                color: '#6B7280',
+                transition: 'all 0.2s',
+                pointerEvents: 'auto'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#E2E8F0';
+                e.currentTarget.style.backgroundColor = '#F3F4F6';
+                e.currentTarget.style.color = '#374151';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#6B7280';
               }}
             >
-              {isMinimized ? <Maximize2 size={16} color="#64748B" /> : <Minimize2 size={16} color="#64748B" />}
+              {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
             </button>
           )}
+          
           <button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              console.log('❌ Close 버튼 클릭됨');
               setIsOpen(false);
             }}
             style={{
@@ -875,30 +911,31 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'background-color 0.2s',
-              outline: 'none'
+              color: '#6B7280',
+              transition: 'all 0.2s',
+              pointerEvents: 'auto'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#FEE2E2';
+              e.currentTarget.style.backgroundColor = '#FEF2F2';
+              e.currentTarget.style.color = '#DC2626';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#6B7280';
             }}
           >
-            <X size={16} color="#EF4444" />
+            <X size={16} />
           </button>
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content - 여기서는 드래그 비활성화 */}
       {!isMinimized && (
-        <div 
-          style={{ 
-            height: 'calc(100% - 65px)', 
-            overflow: 'auto',
-            backgroundColor: '#FFFFFF'
-          }}
-        >
+        <div style={{ 
+          height: 'calc(100% - 65px)', 
+          overflow: 'auto',
+          pointerEvents: 'auto'
+        }}>
           <SimpleMockGui />
         </div>
       )}

@@ -32,9 +32,8 @@ npm install api-mock-gui axios axios-mock-adapter
 ### 2. Add to Your Project
 
 ```tsx
-// main.tsx or index.tsx - Add these TWO imports
+// main.tsx or index.tsx - Add this ONE import only
 import 'api-mock-gui/auto';                    // ✅ Auto-initialization
-import 'api-mock-gui/dist/styles.css';         // ✅ Required CSS styles
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -46,6 +45,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 ```
+
+> **Note**: No CSS import needed! Styles are automatically included.
 
 ### 3. Run Your Development Server
 
@@ -198,7 +199,7 @@ If you prefer manual control instead of auto-initialization:
 ```tsx
 import React from 'react';
 import { ApiMockManager } from 'api-mock-gui';
-import 'api-mock-gui/dist/styles.css';
+// No CSS import needed - styles are included automatically
 
 function App() {
   return (
@@ -239,13 +240,7 @@ window.apiMockGuiCleanup();  // Clean up resources
    # Refresh page
    ```
 
-2. **Missing CSS import**
-   ```tsx
-   // Make sure you have this line
-   import 'api-mock-gui/dist/styles.css';
-   ```
-
-3. **React not available**
+2. **React not available**
    ```bash
    # Check browser console for errors like:
    # "React not available after maximum attempts"
@@ -336,8 +331,7 @@ Complete React + Vite example:
 
 ```tsx
 // main.tsx
-import 'api-mock-gui/auto';
-import 'api-mock-gui/dist/styles.css';
+import 'api-mock-gui/auto';  // Only this import needed!
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -385,8 +379,7 @@ export default App;
 
 2. **Import** (in your main.tsx/index.tsx):
    ```tsx
-   import 'api-mock-gui/auto';
-   import 'api-mock-gui/dist/styles.css';
+   import 'api-mock-gui/auto';  // Only this import needed!
    ```
 
 3. **Run dev server**: `npm run dev`
@@ -492,13 +485,7 @@ localStorage.setItem('apiMockGui.forceEnable', 'true');
    # Refresh page
    ```
 
-2. **Missing CSS import**
-   ```tsx
-   // Make sure you have this line
-   import 'api-mock-gui/dist/styles.css';
-   ```
-
-3. **React not available**
+2. **React not available**
    ```bash
    # Check browser console for errors like:
    # "React not available after maximum attempts"

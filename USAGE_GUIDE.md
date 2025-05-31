@@ -13,9 +13,8 @@ npm install api-mock-gui axios axios-mock-adapter
 ### 2. 프로젝트에 추가
 
 ```tsx
-// main.tsx 또는 index.tsx - 이 두 줄을 추가하세요
+// main.tsx 또는 index.tsx - 이 한 줄만 추가하세요
 import 'api-mock-gui/auto';                    // ✅ 자동 초기화
-import 'api-mock-gui/dist/styles.css';         // ✅ 필수 CSS 스타일
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -27,6 +26,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 ```
+
+> **참고**: CSS import는 필요하지 않습니다! 스타일이 자동으로 포함됩니다.
 
 ### 3. 개발 서버 실행
 
@@ -302,9 +303,8 @@ export default App;
 
 1. `npm install api-mock-gui axios axios-mock-adapter`
 2. `import 'api-mock-gui/auto'` 추가
-3. `import 'api-mock-gui/dist/styles.css'` 추가
-4. 개발 서버 실행
-5. 우하단 플로팅 버튼 클릭하여 사용
+3. 개발 서버 실행
+4. 우하단 플로팅 버튼 클릭하여 사용
 
 **별도의 axios-mock-adapter 설정은 필요하지 않습니다!** API Mock GUI가 모든 것을 자동으로 처리합니다.
 
