@@ -5,11 +5,15 @@ export declare class MockServer implements MockServerInstance {
     isRunning: boolean;
     private handlerCount;
     private hasBeenStarted;
+    private trackedInstances;
     constructor(config?: MockServerConfig);
+    private interceptAxiosCreate;
+    private applyMockToInstance;
     start(): Promise<void>;
     stop(): Promise<void>;
     updateHandlers(apis: MockApi[]): void;
     private createHandlers;
+    private createHandlersForAdapter;
     private buildFullPath;
     private getEnabledApiCount;
     getHandlerCount(): number;

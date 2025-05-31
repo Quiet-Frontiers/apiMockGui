@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect, useRef } from 'react';
-import { X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2, Database, Zap } from 'lucide-react';
+import { X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2, Database } from 'lucide-react';
 import { MockServer } from '../mock/mockServer';
 import { useMockApiStore } from '../hooks/useMockApiStore';
 export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServerStart, onServerStop, position = 'bottom-right', buttonText, buttonIcon, panelWidth = '800px', panelHeight = '600px', minimizable = true, draggable = true, ...guiProps }) => {
@@ -84,6 +84,9 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
     const handleMouseDown = (e) => {
         if (!draggable || !panelRef.current)
             return;
+        // 버튼 클릭인 경우 드래그 방지
+        if (e.target.closest('button'))
+            return;
         setIsDragging(true);
         const rect = panelRef.current.getBoundingClientRect();
         dragStartRef.current = {
@@ -145,26 +148,52 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
             e.stopPropagation();
             console.log('🎭 Floating button clicked!');
             setIsOpen(true);
-        }, className: `
-        api-mock-floating-btn group relative flex items-center justify-center w-16 h-16
-        ${isServerRunning
-            ? 'bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-700'
-            : 'bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'}
-        text-white rounded-2xl shadow-2xl transition-all duration-300 ease-out
-        hover:shadow-3xl hover:scale-110 active:scale-95 
-        border-3 border-white/30 backdrop-blur-sm
-        ring-4 ring-black/10 dark:ring-white/10
-      `, style: {
+        }, className: "api-mock-floating-btn", style: {
             ...getPositionStyle(),
             pointerEvents: 'auto',
-            zIndex: 999999,
-            // 다크모드에서도 확실히 보이도록 box-shadow 강화
-            boxShadow: isServerRunning
-                ? '0 20px 40px -12px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-                : '0 20px 40px -12px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-        }, title: isServerRunning ? '🎭 API Mock 실행 중 - 클릭하여 관리' : '🎭 API Mock 중단됨 - 클릭하여 시작', children: [_jsx("div", { className: `absolute inset-0 rounded-2xl transition-opacity duration-300 ${isServerRunning
-                    ? 'bg-emerald-400/30 animate-pulse'
-                    : 'bg-indigo-400/30'}` }), _jsx("div", { className: "relative z-10", children: buttonIcon || (_jsxs("div", { className: "flex items-center space-x-1", children: [_jsx(Database, { className: "w-6 h-6 drop-shadow-sm" }), _jsx(Zap, { className: "w-4 h-4 opacity-90 drop-shadow-sm" })] })) }), isServerRunning && (_jsxs(_Fragment, { children: [_jsx("div", { className: "absolute -top-2 -right-2 w-5 h-5 bg-green-400 rounded-full border-3 border-white shadow-lg", children: _jsx("div", { className: "w-full h-full bg-green-400 rounded-full animate-pulse" }) }), _jsx("div", { className: "absolute -top-2 -right-2 w-5 h-5 bg-green-400 rounded-full animate-ping opacity-75" })] })), _jsxs("div", { className: "absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 \r\n                     bg-gray-900/95 dark:bg-gray-100/95 text-white dark:text-gray-900 \r\n                     text-xs px-3 py-2 rounded-lg whitespace-nowrap font-medium\r\n                     opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none\r\n                     border border-white/20 dark:border-gray-900/20 shadow-xl", children: [isServerRunning ? '🎭 API Mock 실행 중' : '🎭 API Mock 관리', _jsx("div", { className: "absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent \r\n                       border-t-gray-900/95 dark:border-t-gray-100/95" })] }), _jsx("div", { className: "absolute -inset-2 rounded-3xl" })] }));
+            zIndex: 2147483647,
+            position: 'fixed',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: isServerRunning ? '#10B981' : '#3B82F6',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease',
+            border: '3px solid rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(10px)',
+            outline: 'none'
+        }, onMouseEnter: (e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(0, 0, 0, 0.2)';
+        }, onMouseLeave: (e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1)';
+        }, onMouseDown: (e) => {
+            e.currentTarget.style.transform = 'scale(0.95)';
+        }, onMouseUp: (e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+        }, title: isServerRunning ? '🎭 API Mock 실행 중 - 클릭하여 관리' : '🎭 API Mock 중단됨 - 클릭하여 시작', children: [_jsx("div", { style: { color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }, children: _jsx(Database, { size: 28, strokeWidth: 2.5 }) }), isServerRunning && (_jsx("div", { style: {
+                    position: 'absolute',
+                    top: '-3px',
+                    right: '-3px',
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: '#22C55E',
+                    borderRadius: '50%',
+                    border: '3px solid white',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                    animation: 'pulse 2s infinite'
+                } })), _jsx("style", { children: `
+          @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+          }
+        ` })] }));
     const handleSaveNewApi = () => {
         if (!newApiForm.name || !newApiForm.path) {
             alert('Please fill in name and path');
@@ -190,46 +219,350 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
         setEditingApi(null);
         setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
     };
-    const SimpleMockGui = () => (_jsxs("div", { className: "p-4 space-y-4", children: [_jsxs("div", { className: "bg-gray-50 dark:bg-gray-700 p-4 rounded-lg", children: [_jsxs("div", { className: "flex items-center justify-between mb-2", children: [_jsx("h3", { className: "font-semibold text-gray-800 dark:text-gray-200", children: "Mock Server" }), _jsxs("div", { className: "flex items-center space-x-2", children: [isServerRunning ? (_jsx(Wifi, { className: "w-4 h-4 text-green-600 dark:text-green-400" })) : (_jsx(WifiOff, { className: "w-4 h-4 text-gray-400" })), _jsx("span", { className: `text-sm ${isServerRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`, children: isServerRunning ? 'Running' : 'Stopped' })] })] }), _jsxs("div", { className: "flex items-center space-x-2", children: [_jsxs("button", { onClick: isServerRunning ? handleStopServer : handleStartServer, className: `
-              flex items-center space-x-2 px-3 py-1.5 rounded text-sm font-medium transition-colors
-              ${isServerRunning
-                                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                                    : 'bg-green-600 hover:bg-green-700 text-white'}
-            `, children: [isServerRunning ? _jsx(Square, { className: "w-4 h-4" }) : _jsx(Play, { className: "w-4 h-4" }), isServerRunning ? 'Stop' : 'Start'] }), handlerCount > 0 && (_jsxs("span", { className: "text-sm text-gray-600 dark:text-gray-400", children: [handlerCount, " handlers active"] }))] }), serverError && (_jsx("div", { className: "mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-red-700 dark:text-red-400 text-sm", children: serverError }))] }), editingApi && (_jsxs("div", { className: "bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4", children: [_jsxs("div", { className: "flex items-center justify-between mb-3", children: [_jsx("h3", { className: "font-semibold text-blue-800 dark:text-blue-300", children: editingApi.id ? 'Edit API' : 'Add New API' }), _jsx("button", { onClick: () => setEditingApi(null), className: "text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300", children: _jsx(X, { className: "w-4 h-4" }) })] }), _jsxs("div", { className: "space-y-3", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1", children: "Name" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.name : newApiForm.name, onChange: (e) => editingApi.id
+    const SimpleMockGui = () => (_jsxs("div", { style: { padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }, children: [_jsxs("div", { style: {
+                    backgroundColor: '#F1F5F9',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '1px solid #E2E8F0'
+                }, children: [_jsxs("div", { style: {
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '16px'
+                        }, children: [_jsx("h3", { style: {
+                                    fontWeight: '600',
+                                    fontSize: '16px',
+                                    color: '#1E293B',
+                                    margin: 0
+                                }, children: "Mock Server" }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '8px' }, children: [isServerRunning ? (_jsx(Wifi, { size: 16, color: "#10B981" })) : (_jsx(WifiOff, { size: 16, color: "#94A3B8" })), _jsx("span", { style: {
+                                            fontSize: '14px',
+                                            color: isServerRunning ? '#10B981' : '#64748B',
+                                            fontWeight: '500'
+                                        }, children: isServerRunning ? 'Running' : 'Stopped' })] })] }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '12px' }, children: [_jsxs("button", { onClick: isServerRunning ? handleStopServer : handleStartServer, style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    padding: '8px 16px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    backgroundColor: isServerRunning ? '#EF4444' : '#10B981',
+                                    color: 'white',
+                                    transition: 'background-color 0.2s'
+                                }, onMouseEnter: (e) => {
+                                    e.currentTarget.style.backgroundColor = isServerRunning ? '#DC2626' : '#059669';
+                                }, onMouseLeave: (e) => {
+                                    e.currentTarget.style.backgroundColor = isServerRunning ? '#EF4444' : '#10B981';
+                                }, children: [isServerRunning ? _jsx(Square, { size: 16 }) : _jsx(Play, { size: 16 }), isServerRunning ? 'Stop' : 'Start'] }), handlerCount > 0 && (_jsxs("span", { style: { fontSize: '14px', color: '#64748B' }, children: [handlerCount, " handlers active"] }))] }), serverError && (_jsx("div", { style: {
+                            marginTop: '12px',
+                            padding: '12px',
+                            backgroundColor: '#FEF2F2',
+                            border: '1px solid #FECACA',
+                            borderRadius: '8px',
+                            color: '#DC2626',
+                            fontSize: '14px'
+                        }, children: serverError }))] }), editingApi && (_jsxs("div", { style: {
+                    backgroundColor: '#EFF6FF',
+                    border: '1px solid #DBEAFE',
+                    borderRadius: '12px',
+                    padding: '20px'
+                }, children: [_jsxs("div", { style: {
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '16px'
+                        }, children: [_jsx("h3", { style: {
+                                    fontWeight: '600',
+                                    fontSize: '16px',
+                                    color: '#1E40AF',
+                                    margin: 0
+                                }, children: editingApi.id ? 'Edit API' : 'Add New API' }), _jsx("button", { onClick: () => setEditingApi(null), style: {
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    backgroundColor: 'transparent',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }, children: _jsx(X, { size: 16, color: "#3B82F6" }) })] }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', gap: '16px' }, children: [_jsxs("div", { children: [_jsx("label", { style: {
+                                            display: 'block',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            color: '#374151',
+                                            marginBottom: '6px'
+                                        }, children: "Name" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.name : newApiForm.name, onChange: (e) => editingApi.id
                                             ? setEditingApi({ ...editingApi, name: e.target.value })
-                                            : setNewApiForm({ ...newApiForm, name: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100", placeholder: "e.g. Get Users" })] }), _jsxs("div", { className: "grid grid-cols-2 gap-3", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1", children: "Method" }), _jsxs("select", { value: editingApi.id ? editingApi.method : newApiForm.method, onChange: (e) => editingApi.id
+                                            : setNewApiForm({ ...newApiForm, name: e.target.value }), style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid #D1D5DB',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            backgroundColor: 'white',
+                                            color: '#1F2937',
+                                            boxSizing: 'border-box'
+                                        }, placeholder: "e.g. Get Users" })] }), _jsxs("div", { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }, children: [_jsxs("div", { children: [_jsx("label", { style: {
+                                                    display: 'block',
+                                                    fontSize: '14px',
+                                                    fontWeight: '500',
+                                                    color: '#374151',
+                                                    marginBottom: '6px'
+                                                }, children: "Method" }), _jsxs("select", { value: editingApi.id ? editingApi.method : newApiForm.method, onChange: (e) => editingApi.id
                                                     ? setEditingApi({ ...editingApi, method: e.target.value })
-                                                    : setNewApiForm({ ...newApiForm, method: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100", children: [_jsx("option", { value: "GET", children: "GET" }), _jsx("option", { value: "POST", children: "POST" }), _jsx("option", { value: "PUT", children: "PUT" }), _jsx("option", { value: "DELETE", children: "DELETE" }), _jsx("option", { value: "PATCH", children: "PATCH" })] })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1", children: "Path" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.path : newApiForm.path, onChange: (e) => editingApi.id
+                                                    : setNewApiForm({ ...newApiForm, method: e.target.value }), style: {
+                                                    width: '100%',
+                                                    padding: '8px 12px',
+                                                    border: '1px solid #D1D5DB',
+                                                    borderRadius: '6px',
+                                                    fontSize: '14px',
+                                                    backgroundColor: 'white',
+                                                    color: '#1F2937',
+                                                    boxSizing: 'border-box'
+                                                }, children: [_jsx("option", { value: "GET", children: "GET" }), _jsx("option", { value: "POST", children: "POST" }), _jsx("option", { value: "PUT", children: "PUT" }), _jsx("option", { value: "DELETE", children: "DELETE" }), _jsx("option", { value: "PATCH", children: "PATCH" })] })] }), _jsxs("div", { children: [_jsx("label", { style: {
+                                                    display: 'block',
+                                                    fontSize: '14px',
+                                                    fontWeight: '500',
+                                                    color: '#374151',
+                                                    marginBottom: '6px'
+                                                }, children: "Path" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.path : newApiForm.path, onChange: (e) => editingApi.id
                                                     ? setEditingApi({ ...editingApi, path: e.target.value })
-                                                    : setNewApiForm({ ...newApiForm, path: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100", placeholder: "/api/users" })] })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1", children: "Description" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.description || '' : newApiForm.description, onChange: (e) => editingApi.id
+                                                    : setNewApiForm({ ...newApiForm, path: e.target.value }), style: {
+                                                    width: '100%',
+                                                    padding: '8px 12px',
+                                                    border: '1px solid #D1D5DB',
+                                                    borderRadius: '6px',
+                                                    fontSize: '14px',
+                                                    backgroundColor: 'white',
+                                                    color: '#1F2937',
+                                                    boxSizing: 'border-box'
+                                                }, placeholder: "/api/users" })] })] }), _jsxs("div", { children: [_jsx("label", { style: {
+                                            display: 'block',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            color: '#374151',
+                                            marginBottom: '6px'
+                                        }, children: "Description" }), _jsx("input", { type: "text", value: editingApi.id ? editingApi.description || '' : newApiForm.description, onChange: (e) => editingApi.id
                                             ? setEditingApi({ ...editingApi, description: e.target.value })
-                                            : setNewApiForm({ ...newApiForm, description: e.target.value }), className: "w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100", placeholder: "Optional description" })] }), _jsxs("div", { className: "flex space-x-2 pt-2", children: [_jsxs("button", { onClick: editingApi.id ? () => {
+                                            : setNewApiForm({ ...newApiForm, description: e.target.value }), style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid #D1D5DB',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            backgroundColor: 'white',
+                                            color: '#1F2937',
+                                            boxSizing: 'border-box'
+                                        }, placeholder: "Optional description" })] }), _jsxs("div", { style: { display: 'flex', gap: '8px', paddingTop: '8px' }, children: [_jsxs("button", { onClick: editingApi.id ? () => {
                                             store.updateApi(editingApi.id, editingApi);
                                             setEditingApi(null);
-                                        } : handleSaveNewApi, className: "px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors", children: [editingApi.id ? 'Update' : 'Add', " API"] }), _jsx("button", { onClick: () => setEditingApi(null), className: "px-4 py-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 rounded text-sm transition-colors", children: "Cancel" })] })] })] })), _jsxs("div", { children: [_jsxs("div", { className: "flex items-center justify-between mb-3", children: [_jsxs("h3", { className: "font-semibold text-gray-800 dark:text-gray-200", children: ["Mock APIs (", store.apis.length, ")"] }), _jsxs("button", { onClick: () => setEditingApi({
-                                    id: '',
-                                    name: '',
-                                    method: 'GET',
-                                    path: '',
-                                    description: '',
-                                    cases: [],
-                                    isEnabled: true,
-                                    createdAt: new Date().toISOString(),
-                                    updatedAt: new Date().toISOString()
-                                }), className: "flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors", children: [_jsx(Plus, { className: "w-4 h-4" }), _jsx("span", { children: "Add API" })] })] }), _jsx("div", { className: "space-y-2 max-h-64 overflow-y-auto", children: store.apis.length === 0 ? (_jsxs("div", { className: "text-center py-8 text-gray-500 dark:text-gray-400", children: [_jsx(Database, { className: "w-8 h-8 mx-auto mb-2 text-gray-400 dark:text-gray-500" }), _jsx("p", { children: "No APIs configured yet" }), _jsx("p", { className: "text-sm", children: "Click \"Add API\" to get started" })] })) : (store.apis.map((api) => (_jsxs("div", { className: "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { className: "flex items-center space-x-3", children: [_jsx("span", { className: `
-                      px-2 py-1 rounded text-xs font-medium
-                      ${api.method === 'GET' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300' :
-                                                        api.method === 'POST' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' :
-                                                            api.method === 'PUT' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' :
-                                                                api.method === 'DELETE' ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300' :
-                                                                    'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200'}
-                    `, children: api.method }), _jsxs("div", { children: [_jsx("div", { className: "font-medium text-sm text-gray-900 dark:text-gray-100", children: api.name }), _jsx("div", { className: "text-xs text-gray-500 dark:text-gray-400", children: api.path })] })] }), _jsxs("div", { className: "flex items-center space-x-1", children: [_jsx("button", { onClick: () => setEditingApi(api), className: "p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors", children: _jsx(Edit, { className: "w-4 h-4 text-gray-500 dark:text-gray-400" }) }), _jsx("button", { onClick: () => store.deleteApi(api.id), className: "p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors", children: _jsx(Trash2, { className: "w-4 h-4 text-red-500 dark:text-red-400" }) })] })] }), api.cases.length > 0 && (_jsxs("div", { className: "mt-2 text-xs text-gray-500 dark:text-gray-400", children: [api.cases.length, " response case(s)"] }))] }, api.id)))) })] })] }));
-    const FloatingPanel = () => (_jsxs("div", { ref: panelRef, onMouseDown: handleMouseDown, className: "bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden backdrop-blur-lg", style: {
+                                        } : handleSaveNewApi, style: {
+                                            padding: '8px 16px',
+                                            backgroundColor: '#3B82F6',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s'
+                                        }, onMouseEnter: (e) => {
+                                            e.currentTarget.style.backgroundColor = '#2563EB';
+                                        }, onMouseLeave: (e) => {
+                                            e.currentTarget.style.backgroundColor = '#3B82F6';
+                                        }, children: [editingApi.id ? 'Update' : 'Add', " API"] }), _jsx("button", { onClick: () => setEditingApi(null), style: {
+                                            padding: '8px 16px',
+                                            backgroundColor: '#F3F4F6',
+                                            color: '#374151',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s'
+                                        }, onMouseEnter: (e) => {
+                                            e.currentTarget.style.backgroundColor = '#E5E7EB';
+                                        }, onMouseLeave: (e) => {
+                                            e.currentTarget.style.backgroundColor = '#F3F4F6';
+                                        }, children: "Cancel" })] })] })] })), _jsxs("div", { children: [_jsxs("div", { style: {
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '16px'
+                        }, children: [_jsxs("h3", { style: {
+                                    fontWeight: '600',
+                                    fontSize: '16px',
+                                    color: '#1E293B',
+                                    margin: 0
+                                }, children: ["Mock APIs (", store.apis.length, ")"] }), _jsxs("button", { onClick: (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setEditingApi({
+                                        id: '',
+                                        name: '',
+                                        method: 'GET',
+                                        path: '',
+                                        description: '',
+                                        cases: [],
+                                        isEnabled: true,
+                                        createdAt: new Date().toISOString(),
+                                        updatedAt: new Date().toISOString()
+                                    });
+                                }, style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '8px 16px',
+                                    backgroundColor: '#3B82F6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.2s',
+                                    outline: 'none'
+                                }, onMouseEnter: (e) => {
+                                    e.currentTarget.style.backgroundColor = '#2563EB';
+                                }, onMouseLeave: (e) => {
+                                    e.currentTarget.style.backgroundColor = '#3B82F6';
+                                }, children: [_jsx(Plus, { size: 16 }), "Add API"] })] }), _jsx("div", { style: { display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflow: 'auto' }, children: store.apis.length === 0 ? (_jsxs("div", { style: {
+                                textAlign: 'center',
+                                padding: '40px 20px',
+                                color: '#64748B'
+                            }, children: [_jsx(Database, { size: 32, color: "#94A3B8", style: { margin: '0 auto 12px' } }), _jsx("p", { style: { margin: '0 0 4px', fontSize: '16px' }, children: "No APIs configured yet" }), _jsx("p", { style: { margin: 0, fontSize: '14px' }, children: "Click \"Add API\" to get started" })] })) : (store.apis.map((api) => (_jsxs("div", { style: {
+                                backgroundColor: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '8px',
+                                padding: '16px'
+                            }, children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' }, children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '12px' }, children: [_jsx("span", { style: {
+                                                        padding: '4px 8px',
+                                                        borderRadius: '4px',
+                                                        fontSize: '12px',
+                                                        fontWeight: '600',
+                                                        backgroundColor: api.method === 'GET' ? '#DBEAFE' :
+                                                            api.method === 'POST' ? '#D1FAE5' :
+                                                                api.method === 'PUT' ? '#FEF3C7' :
+                                                                    api.method === 'DELETE' ? '#FEE2E2' :
+                                                                        '#F3F4F6',
+                                                        color: api.method === 'GET' ? '#1E40AF' :
+                                                            api.method === 'POST' ? '#065F46' :
+                                                                api.method === 'PUT' ? '#92400E' :
+                                                                    api.method === 'DELETE' ? '#B91C1C' :
+                                                                        '#374151'
+                                                    }, children: api.method }), _jsxs("div", { children: [_jsx("div", { style: { fontWeight: '500', fontSize: '14px', color: '#1F2937' }, children: api.name }), _jsx("div", { style: { fontSize: '12px', color: '#6B7280' }, children: api.path })] })] }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '4px' }, children: [_jsx("button", { onClick: () => setEditingApi(api), style: {
+                                                        width: '28px',
+                                                        height: '28px',
+                                                        borderRadius: '4px',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        transition: 'background-color 0.2s'
+                                                    }, onMouseEnter: (e) => {
+                                                        e.currentTarget.style.backgroundColor = '#F3F4F6';
+                                                    }, onMouseLeave: (e) => {
+                                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                                    }, children: _jsx(Edit, { size: 14, color: "#6B7280" }) }), _jsx("button", { onClick: () => store.deleteApi(api.id), style: {
+                                                        width: '28px',
+                                                        height: '28px',
+                                                        borderRadius: '4px',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        transition: 'background-color 0.2s'
+                                                    }, onMouseEnter: (e) => {
+                                                        e.currentTarget.style.backgroundColor = '#FEE2E2';
+                                                    }, onMouseLeave: (e) => {
+                                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                                    }, children: _jsx(Trash2, { size: 14, color: "#EF4444" }) })] })] }), api.cases.length > 0 && (_jsxs("div", { style: { marginTop: '8px', fontSize: '12px', color: '#6B7280' }, children: [api.cases.length, " response case(s)"] }))] }, api.id)))) })] })] }));
+    const FloatingPanel = () => (_jsxs("div", { ref: panelRef, onMouseDown: handleMouseDown, style: {
             ...getPositionStyle(),
             width: panelWidth,
             height: isMinimized ? 'auto' : panelHeight,
             maxHeight: '90vh',
-            zIndex: 999999
-        }, children: [_jsxs("div", { className: "bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 p-3 flex items-center justify-between cursor-move", children: [_jsxs("div", { className: "flex items-center space-x-3", children: [_jsx(Database, { className: "w-5 h-5 text-gray-600 dark:text-gray-300" }), _jsx("h2", { className: "font-semibold text-gray-800 dark:text-gray-200", children: "API Mock Manager" })] }), _jsxs("div", { className: "flex items-center space-x-2", children: [minimizable && (_jsx("button", { onClick: () => setIsMinimized(!isMinimized), className: "p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors", children: isMinimized ? _jsx(Maximize2, { className: "w-4 h-4 text-gray-600 dark:text-gray-300" }) : _jsx(Minimize2, { className: "w-4 h-4 text-gray-600 dark:text-gray-300" }) })), _jsx("button", { onClick: () => setIsOpen(false), className: "p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors", children: _jsx(X, { className: "w-4 h-4 text-gray-600 dark:text-gray-300" }) })] })] }), !isMinimized && (_jsx("div", { className: "overflow-y-auto bg-white dark:bg-gray-800", style: { height: 'calc(100% - 60px)' }, children: _jsx(SimpleMockGui, {}) }))] }));
+            zIndex: 2147483647,
+            position: 'fixed',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '16px',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+            border: '2px solid rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+            backdropFilter: 'blur(20px)',
+            fontFamily: 'system-ui, -apple-system, sans-serif'
+        }, children: [_jsxs("div", { style: {
+                    backgroundColor: '#F8FAFC',
+                    borderBottom: '1px solid #E2E8F0',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'move'
+                }, children: [_jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '12px' }, children: [_jsx("div", { style: {
+                                    width: '32px',
+                                    height: '32px',
+                                    backgroundColor: isServerRunning ? '#10B981' : '#3B82F6',
+                                    borderRadius: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }, children: _jsx(Database, { size: 18, color: "white", strokeWidth: 2.5 }) }), _jsx("h2", { style: {
+                                    fontWeight: '600',
+                                    fontSize: '16px',
+                                    color: '#1E293B',
+                                    margin: 0
+                                }, children: "API Mock Manager" })] }), _jsxs("div", { style: { display: 'flex', alignItems: 'center', gap: '8px' }, children: [minimizable && (_jsx("button", { onClick: (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsMinimized(!isMinimized);
+                                }, style: {
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    backgroundColor: 'transparent',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'background-color 0.2s',
+                                    outline: 'none'
+                                }, onMouseEnter: (e) => {
+                                    e.currentTarget.style.backgroundColor = '#E2E8F0';
+                                }, onMouseLeave: (e) => {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                }, children: isMinimized ? _jsx(Maximize2, { size: 16, color: "#64748B" }) : _jsx(Minimize2, { size: 16, color: "#64748B" }) })), _jsx("button", { onClick: (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsOpen(false);
+                                }, style: {
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    backgroundColor: 'transparent',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'background-color 0.2s',
+                                    outline: 'none'
+                                }, onMouseEnter: (e) => {
+                                    e.currentTarget.style.backgroundColor = '#FEE2E2';
+                                }, onMouseLeave: (e) => {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                }, children: _jsx(X, { size: 16, color: "#EF4444" }) })] })] }), !isMinimized && (_jsx("div", { style: {
+                    height: 'calc(100% - 65px)',
+                    overflow: 'auto',
+                    backgroundColor: '#FFFFFF'
+                }, children: _jsx(SimpleMockGui, {}) }))] }));
     return (_jsxs(_Fragment, { children: [!isOpen && _jsx(FloatingButton, {}), isOpen && _jsx(FloatingPanel, {})] }));
 };

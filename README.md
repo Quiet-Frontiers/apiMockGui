@@ -1,241 +1,584 @@
 # 🎭 API Mock GUI
 
-[![npm version](https://img.shields.io/npm/v/api-mock-gui.svg)](https://www.npmjs.com/package/api-mock-gui)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+A powerful and intuitive GUI library for mocking API responses using axios-mock-adapter. Perfect for frontend development and testing.
 
-**API Mock GUI**는 개발 중인 웹 애플리케이션에서 API 응답을 쉽게 모킹할 수 있는 초간단 라이브러리입니다. 설치만 하면 자동으로 아름다운 floating button이 나타나며, axios-mock-adapter를 기반으로 실제 HTTP 요청을 가로채어 개발자가 정의한 Mock 응답을 제공합니다.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/npm/v/api-mock-gui.svg)
 
-## ✨ 주요 특징
+## ✨ Features
 
-- 🚀 **Zero Config**: 라이브러리 import만으로 즉시 활성화
-- 🎯 **자동 Floating Button**: 개발 환경에서 직관적인 데이터베이스 아이콘 버튼 자동 생성
-- 📡 **axios-mock-adapter 통합**: axios 요청을 직접 가로채어 Mock 응답 제공 (자동 설치 포함)
-- 🔄 **실시간 제어**: Mock 서버 시작/중지 및 API 설정 변경
-- 🎨 **향상된 UI/UX**: 모던한 디자인과 부드러운 애니메이션 효과
-- 🔧 **개발자 친화적**: TypeScript 지원 및 직관적인 GUI
-- 🌐 **포괄적 환경 지원**: 다양한 개발 환경 자동 감지
-- 🛠️ **스마트 초기화**: 더 안정적인 자동 초기화 로직
+- 🎯 **Zero Configuration**: Just import and use - no complex setup required
+- 🎨 **Beautiful GUI**: Modern, intuitive interface for managing mock APIs
+- 🚀 **Auto-initialization**: Floating button appears automatically in development
+- 📝 **Multiple Response Cases**: Support for different response scenarios per API
+- 🔄 **Real-time Updates**: Changes take effect immediately
+- 🎛️ **Full Control**: Start/stop mock server, enable/disable individual APIs
+- 📱 **Responsive Design**: Works on all screen sizes
 
-## 🆕 최신 업데이트 (v2.0.2+)
-
-### 🎨 UI/UX 개선
-- ✨ **새로운 아이콘**: Database + Zap 아이콘 조합으로 더 직관적인 표현
-- 🌈 **모던한 디자인**: 그라디언트 배경과 향상된 그림자 효과
-- 💎 **부드러운 애니메이션**: 호버 시 확대/축소 효과와 글로우 애니메이션
-- 🏷️ **스마트 툴팁**: 호버 시 상태 정보를 보여주는 인터랙티브 툴팁
-- 📏 **더 큰 버튼**: 14x14px로 확대되어 클릭하기 더 쉬움
-
-### 🔧 기능 개선
-- 🎯 **향상된 환경 감지**: 더 많은 개발 환경 자동 감지 (Vite, Webpack, DevTools 등)
-- 🔧 **강제 활성화**: `localStorage.setItem('apiMockGui.forceEnable', 'true')` 또는 `?dev=true` 파라미터
-- 📦 **자동 의존성**: axios-mock-adapter가 자동으로 함께 설치됨
-- 💬 **한국어 로그**: 더 친숙한 한국어 콘솔 메시지
-- ⚡ **안정성 향상**: 초기화 재시도 로직과 더 나은 에러 핸들링
-
-## 🚀 빠른 시작
-
-### 1. 설치
+## 📦 Installation
 
 ```bash
-npm install api-mock-gui
-# axios-mock-adapter도 자동으로 함께 설치됩니다!
+npm install api-mock-gui axios axios-mock-adapter
 ```
 
-### 2. 사용하기 (이게 전부입니다!)
+## 🚀 Quick Start
 
-```typescript
-// App.tsx 또는 index.tsx에 추가
-import 'api-mock-gui/auto';
+### 1. Installation & Setup
 
-function App() {
-  return <div>Your App</div>;
-}
+```bash
+npm install api-mock-gui axios axios-mock-adapter
 ```
 
-이것만으로 우측 하단에 아름다운 floating button이 자동으로 나타납니다! 🎉
+### 2. Add to Your Project
 
-## 📋 사용 방법
+```tsx
+// main.tsx or index.tsx - Add these TWO imports
+import 'api-mock-gui/auto';                    // ✅ Auto-initialization
+import 'api-mock-gui/dist/styles.css';         // ✅ Required CSS styles
 
-### 🎯 기본 사용법
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
-```typescript
-import 'api-mock-gui/auto';
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 ```
 
-**자동으로 발생하는 일들:**
-- ✅ 포괄적인 개발 환경 자동 감지 (localhost, Vite, Webpack, DevTools 등)
-- ✅ 우측 하단에 모던한 Database 아이콘 floating button 자동 표시
-- ✅ 클릭하면 직관적인 Mock API 관리 패널이 열림
-- ✅ 프로덕션에서는 자동으로 비활성화 (강제 활성화 옵션 제공)
-- ✅ axios-mock-adapter를 통한 HTTP 요청 자동 가로채기
-- ✅ 실시간 상태 표시 (실행 중일 때 초록색 펄스 애니메이션)
+### 3. Run Your Development Server
 
-### 🎮 GUI 사용법
+```bash
+npm run dev
+# or
+npm start
+```
 
-1. **Floating Button 클릭** → 관리 패널 열기 (Database 아이콘)
-2. **Mock Server 시작** → "Start" 버튼 클릭 (초록색으로 변경됨)
-3. **API 추가** → "Add API" 버튼으로 새 API 생성
-4. **API 설정**:
-   - Name: API 이름 (예: "Get Users")
-   - Method: HTTP 메소드 (GET, POST, PUT, DELETE, PATCH)
-   - Path: API 경로 (예: "/api/users")
-   - Description: 설명 (선택사항)
-5. **자동 응답** → 기본 200 응답이 자동 생성됨
-6. **실시간 테스트** → 앱에서 해당 API 호출 시 Mock 응답 받음
+You should see a blue floating button in the bottom-right corner! 🎉
 
-### 🔧 개발 환경이 감지되지 않는 경우
+### 4. Configure Your First Mock API
 
-다음 방법들을 사용하여 강제로 활성화할 수 있습니다:
+1. **Click the floating button** → Opens the API Mock Manager
+2. **Click "Start" button** → Starts the mock server (button turns green)
+3. **Click "Add API" button** → Opens the API configuration form
+4. **Fill in the API details**:
+   - **Name**: `Get Users` (any descriptive name)
+   - **Method**: `GET` (from dropdown)
+   - **Path**: `/api/users` (the endpoint you want to mock)
+   - **Description**: `Returns list of users` (optional)
+5. **Click "Add API"** → Creates the mock with a default 200 response
+6. **Your mock is now active!** ✅
 
-```javascript
-// 방법 1: localStorage 설정
+### 5. Test Your Mock
+
+Now when your app makes a request to `/api/users`, it will be intercepted:
+
+```tsx
+// In your component
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'https://api.yourproject.com'  // This can be any URL
+});
+
+// This request will now return the mock data!
+api.get('/api/users').then(response => {
+  console.log(response.data); // { success: true, message: 'Mock response' }
+});
+```
+
+### 6. Customize Response Data
+
+1. **Click the Edit button** (pencil icon) next to your API
+2. **Edit the response**:
+   - Change **Status Code** (200, 404, 500, etc.)
+   - Modify **Response Body**:
+     ```json
+     {
+       "users": [
+         { "id": 1, "name": "John Doe", "email": "john@example.com" },
+         { "id": 2, "name": "Jane Smith", "email": "jane@example.com" }
+       ]
+     }
+     ```
+3. **Save changes** → Your app will immediately use the new response!
+
+## 🎯 How It Works
+
+API Mock GUI integrates seamlessly with your existing axios setup:
+
+1. **Automatic Detection**: Automatically intercepts ALL axios instances (default and created)
+2. **Zero Configuration**: No axios-mock-adapter setup required
+3. **Real-time Updates**: Changes in the GUI update mocks immediately
+4. **No Conflicts**: Works alongside your existing axios configuration
+
+```tsx
+// ✅ All of these work automatically - no additional setup needed!
+
+// Default axios instance
+import axios from 'axios';
+axios.get('/users'); // ← Automatically mocked
+
+// Created axios instance
+const api = axios.create({
+  baseURL: 'https://api.yourproject.com',
+  timeout: 5000,
+});
+api.get('/users'); // ← Also automatically mocked!
+
+// Multiple instances
+const authApi = axios.create({ baseURL: 'https://auth.yourproject.com' });
+const dataApi = axios.create({ baseURL: 'https://data.yourproject.com' });
+// ← Both automatically mocked!
+```
+
+### 🔧 No axios-mock-adapter Setup Required
+
+Unlike traditional axios-mock-adapter usage, you **don't need to**:
+
+```tsx
+// ❌ You DON'T need to do this manually:
+import MockAdapter from 'axios-mock-adapter';
+const mock = new MockAdapter(axios);
+mock.onGet('/users').reply(200, { users: [] });
+
+// ✅ API Mock GUI handles this automatically!
+// Just import and use the GUI
+```
+
+## 🎨 GUI Usage
+
+### 1. Floating Button
+- Click the blue floating button (bottom-right) to open the GUI
+- Button turns green when mock server is running
+
+### 2. Server Controls
+- **Start/Stop**: Control the mock server
+- **Add API**: Create new mock endpoints
+
+### 3. API Management
+- **Method**: Choose GET, POST, PUT, DELETE
+- **Path**: Set the endpoint path (e.g., `/api/users`)
+- **Response Cases**: Configure different response scenarios
+
+### 4. Response Configuration
+- **Status Code**: 200, 404, 500, etc.
+- **Headers**: Set HTTP headers like Content-Type
+- **Body**: JSON response data
+
+## 🛠️ Environment Configuration
+
+### Development (Auto-enabled)
+
+The GUI activates automatically when any of these conditions are met:
+- `localhost` or `127.0.0.1`
+- Private IP addresses (`192.168.x.x`, `10.x.x.x`, `172.x.x.x`)
+- URLs with port numbers
+- `file://` protocol
+- `NODE_ENV=development`
+- URL parameter `?dev=true`
+
+### Production (Manual activation)
+
+```tsx
+// Force enable in production
 localStorage.setItem('apiMockGui.forceEnable', 'true');
 
-// 방법 2: URL 파라미터
-// http://yourapp.com?dev=true
-
-// 방법 3: 수동 초기화
-window.apiMockGuiInit();
+// Or use URL parameter
+// https://yoursite.com?dev=true
 ```
 
-## 🔧 고급 사용법
+## 🔧 Advanced Usage
 
-### 🎨 커스텀 스타일링
+### Manual Component Usage
 
-```typescript
-// CSS 포함이 필요한 경우
+If you prefer manual control instead of auto-initialization:
+
+```tsx
+import React from 'react';
+import { ApiMockManager } from 'api-mock-gui';
 import 'api-mock-gui/dist/styles.css';
-```
 
-### 🌐 프레임워크별 가이드
-
-#### Next.js
-```typescript
-// pages/_app.tsx 또는 app/layout.tsx
-import 'api-mock-gui/auto';
-
-export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+function App() {
+  return (
+    <div>
+      <ApiMockManager
+        serverConfig={{
+          baseUrl: 'https://api.yourproject.com',
+          environment: 'browser'
+        }}
+        autoStart={true}
+        onServerStart={() => console.log('Mock server started!')}
+      />
+    </div>
+  );
 }
 ```
 
-#### Vue.js
-```javascript
-// main.js
-import 'api-mock-gui/auto';
+### Global Functions
 
-const app = createApp(App);
-app.mount('#app');
+```tsx
+// Manual control via window functions
+window.apiMockGuiInit();     // Initialize manually
+window.apiMockGuiCleanup();  // Clean up resources
 ```
 
-#### Vanilla JavaScript
-```html
-<script type="module">
-  import 'api-mock-gui/auto';
-</script>
-```
+## 🐛 Troubleshooting
 
-## 🔍 실제 동작 방식
+### 🚫 No Floating Button Appears
 
-### axios-mock-adapter 기반 요청 가로채기
-
-```mermaid
-sequenceDiagram
-    participant App as 사용자 앱
-    participant Axios as Axios Instance
-    participant Adapter as Mock Adapter
-    participant GUI as Mock GUI
-    participant Server as 실제 서버
-
-    Note over GUI: GUI에서 Mock API 설정
-    GUI->>Adapter: Handler 등록 (GET /api/users)
-    
-    Note over App: 앱에서 API 호출
-    App->>Axios: axios.get('/api/users')
-    Axios->>Adapter: 요청 가로채기
-    Adapter->>Adapter: 등록된 Handler 확인
-    Adapter->>App: Mock 응답 반환
-    
-    Note over Server: 실제 서버는 호출되지 않음
-```
-
-### 내부 동작 과정
-
-1. **Import 시**: 자동으로 floating button 생성
-2. **개발 환경 감지**: localhost, 127.0.0.1 등에서만 활성화
-3. **axios-mock-adapter 초기화**: axios 인스턴스에 Mock Adapter 적용
-4. **GUI 제어**: 실시간으로 Mock API 추가/수정/삭제
-5. **자동 Handler 업데이트**: GUI 변경 시 Mock Adapter Handler 자동 갱신
-
-## 📦 라이브러리 구조
-
-```
-api-mock-gui/
-├── dist/
-│   ├── index.js          # 메인 라이브러리 (자동 초기화 포함)
-│   ├── index.d.ts        # TypeScript 타입 정의
-│   └── styles.css        # Tailwind CSS 스타일
-└── 사용자는 이것만 설치하면 됨!
-```
-
-## 🔍 디버깅
-
-### 개발자 도구에서 확인
-
-1. **콘솔 로그 확인**:
-   ```
-   🎭 API Mock GUI Floating Button이 자동으로 생성되었습니다!
-   💡 우측 하단의 floating button을 클릭하여 사용하세요.
+**Possible causes:**
+1. **Not in development environment**
+   ```bash
+   # Check current URL in browser console
+   console.log(window.location.href);
+   
+   # Force enable if needed
+   localStorage.setItem('apiMockGui.forceEnable', 'true');
+   # Refresh page
    ```
 
-2. **Network 탭 확인**:
-   - Mock된 요청은 실제 네트워크 요청이 발생하지 않음
-   - axios-mock-adapter가 요청을 가로채어 즉시 응답
+2. **Missing CSS import**
+   ```tsx
+   // Make sure you have this line
+   import 'api-mock-gui/dist/styles.css';
+   ```
 
-3. **Floating Button 확인**:
-   - 우측 하단에 작은 둥근 버튼 (Settings 아이콘)
-   - Server 실행 중일 때 초록색 dot 표시
+3. **React not available**
+   ```bash
+   # Check browser console for errors like:
+   # "React not available after maximum attempts"
+   ```
 
-### 일반적인 문제 해결
+### 🖱️ Buttons Not Clickable
 
-**Q: Floating button이 나타나지 않아요**
-```javascript
-// 환경 확인
+**Solutions:**
+1. **CSS conflicts** - Check browser DevTools for CSS issues
+2. **Z-index problems** - The button uses `z-index: 2147483647`
+3. **JavaScript errors** - Check browser console for errors
+
+### 🔌 Mock Not Working
+
+**Step-by-step debugging:**
+
+1. **Check server status**
+   - Button should be **green** when server is running
+   - If red/blue, click to start the server
+
+2. **Verify API configuration**
+   ```tsx
+   // Your request
+   axios.get('/api/users')
+   
+   // Mock configuration should match:
+   // Method: GET
+   // Path: /api/users (exactly)
+   ```
+
+3. **Check network tab**
+   - Open browser DevTools → Network tab
+   - Make the API request
+   - Look for the request - it should NOT appear in network tab if mocked
+   - If it appears, the mock is not intercepting it
+
+4. **Check axios setup**
+   ```tsx
+   // This works
+   import axios from 'axios';
+   const api = axios.create({ baseURL: 'https://any-url.com' });
+   api.get('/api/users'); // ✅ Will be mocked
+   
+   // This doesn't work
+   fetch('/api/users'); // ❌ fetch() is not supported, use axios
+   ```
+
+### 🌐 Environment Issues
+
+**Not activating in your environment?**
+```tsx
+// Check what's detected
 console.log('Hostname:', window.location.hostname);
+console.log('Port:', window.location.port);
+console.log('Protocol:', window.location.protocol);
 
-// 개발 환경인지 확인
-const isDev = window.location.hostname.includes('localhost') || 
-              window.location.hostname.includes('127.0.0.1');
-console.log('Is Development:', isDev);
+// Force activation
+localStorage.setItem('apiMockGui.forceEnable', 'true');
+window.location.reload();
 ```
 
-**Q: axios가 Mock되지 않아요**
-1. axios를 사용하고 있는지 확인 (fetch API는 지원하지 않음)
-2. Mock Server가 "Running" 상태인지 확인
-3. API Path가 정확히 일치하는지 확인
-4. HTTP Method가 일치하는지 확인
+### 📱 UI Issues
 
-**Q: fetch API를 사용하고 있어요**
-```typescript
-// fetch 대신 axios 사용을 권장합니다
-// Before
-const response = await fetch('/api/users');
+**Panel too small/large?**
+```tsx
+// Use manual component with custom size
+<ApiMockManager
+  panelWidth="1000px"
+  panelHeight="800px"
+  position="top-left"
+/>
+```
 
-// After
+**Can't see the button on mobile?**
+- Button is optimized for desktop development
+- Use manual component for mobile testing
+
+### ⚡ Performance Issues
+
+**Slow response times?**
+- Check if you have many APIs configured
+- Disable unused APIs instead of deleting them
+- Restart the mock server periodically
+
+## 📖 Example Project
+
+Complete React + Vite example:
+
+```tsx
+// main.tsx
+import 'api-mock-gui/auto';
+import 'api-mock-gui/dist/styles.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// App.tsx
 import axios from 'axios';
-const response = await axios.get('/api/users');
+import { useEffect, useState } from 'react';
+
+const api = axios.create({
+  baseURL: 'https://jsonplaceholder.typicode.com'
+});
+
+function App() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    // This request will be mocked when configured in the GUI
+    api.get('/users').then(res => {
+      setUsers(res.data);
+    });
+  }, []);
+
+  return (
+    <div>
+      <h1>Users</h1>
+      <pre>{JSON.stringify(users, null, 2)}</pre>
+    </div>
+  );
+}
+
+export default App;
 ```
 
-## 📄 라이선스
+## 📋 Quick Summary
 
-MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+**Just 4 steps to get started:**
 
-## 🙋‍♂️ 지원
+1. **Install**: `npm install api-mock-gui axios axios-mock-adapter`
 
-- **Issues**: [GitHub Issues](https://github.com/Quiet-Frontiers/apiMockGui/issues)
+2. **Import** (in your main.tsx/index.tsx):
+   ```tsx
+   import 'api-mock-gui/auto';
+   import 'api-mock-gui/dist/styles.css';
+   ```
 
----
+3. **Run dev server**: `npm run dev`
 
-**Made with ❤️ for developers who love efficient API mocking**
- 
+4. **Use the GUI**: 
+   - Click blue floating button (bottom-right)
+   - Click "Start" to start mock server
+   - Click "Add API" to create your first mock
+   - Fill: Method=`GET`, Path=`/api/users`
+   - Now `axios.get('/api/users')` returns mock data!
+
+**No additional axios-mock-adapter setup needed!** 🎉
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Usage Guide](USAGE_GUIDE.md) - Detailed usage instructions
+- [GitHub Repository](https://github.com/Quiet-Frontiers/apiMockGui)
+- [NPM Package](https://www.npmjs.com/package/api-mock-gui)
+
+### Programmatic Control
+
+```tsx
+import { createMockServer, MockApi } from 'api-mock-gui';
+
+const mockServer = createMockServer({
+  baseUrl: 'https://api.example.com',
+  environment: 'browser'
+});
+
+const apis: MockApi[] = [
+  {
+    id: 'users-api',
+    name: 'Users API',
+    method: 'GET',
+    path: '/api/users',
+    cases: [
+      {
+        id: 'success',
+        name: 'Success',
+        status: 200,
+        body: { users: [] },
+        isActive: true
+      }
+    ],
+    isEnabled: true
+  }
+];
+
+await mockServer.start();
+mockServer.updateHandlers(apis);
+```
+
+### Global Functions
+
+```tsx
+// Manual control via window functions
+window.apiMockGuiInit();     // Initialize manually
+window.apiMockGuiCleanup();  // Clean up resources
+```
+
+## 🛠️ Environment Configuration
+
+### Development (Auto-enabled)
+
+The GUI activates automatically when any of these conditions are met:
+- `localhost` or `127.0.0.1`
+- Private IP addresses (`192.168.x.x`, `10.x.x.x`, `172.x.x.x`)
+- URLs with port numbers
+- `file://` protocol
+- `NODE_ENV=development`
+- URL parameter `?dev=true`
+
+### Production (Manual activation)
+
+```tsx
+// Force enable in production
+localStorage.setItem('apiMockGui.forceEnable', 'true');
+
+// Or use URL parameter
+// https://yoursite.com?dev=true
+```
+
+## 🐛 Troubleshooting
+
+### 🚫 No Floating Button Appears
+
+**Possible causes:**
+1. **Not in development environment**
+   ```bash
+   # Check current URL in browser console
+   console.log(window.location.href);
+   
+   # Force enable if needed
+   localStorage.setItem('apiMockGui.forceEnable', 'true');
+   # Refresh page
+   ```
+
+2. **Missing CSS import**
+   ```tsx
+   // Make sure you have this line
+   import 'api-mock-gui/dist/styles.css';
+   ```
+
+3. **React not available**
+   ```bash
+   # Check browser console for errors like:
+   # "React not available after maximum attempts"
+   ```
+
+### 🖱️ Buttons Not Clickable
+
+**Solutions:**
+1. **CSS conflicts** - Check browser DevTools for CSS issues
+2. **Z-index problems** - The button uses `z-index: 2147483647`
+3. **JavaScript errors** - Check browser console for errors
+
+### 🔌 Mock Not Working
+
+**Step-by-step debugging:**
+
+1. **Check server status**
+   - Button should be **green** when server is running
+   - If red/blue, click to start the server
+
+2. **Verify API configuration**
+   ```tsx
+   // Your request
+   axios.get('/api/users')
+   
+   // Mock configuration should match:
+   // Method: GET
+   // Path: /api/users (exactly)
+   ```
+
+3. **Check network tab**
+   - Open browser DevTools → Network tab
+   - Make the API request
+   - Look for the request - it should NOT appear in network tab if mocked
+   - If it appears, the mock is not intercepting it
+
+4. **Check axios setup**
+   ```tsx
+   // This works
+   import axios from 'axios';
+   const api = axios.create({ baseURL: 'https://any-url.com' });
+   api.get('/api/users'); // ✅ Will be mocked
+   
+   // This doesn't work
+   fetch('/api/users'); // ❌ fetch() is not supported, use axios
+   ```
+
+### 🌐 Environment Issues
+
+**Not activating in your environment?**
+```tsx
+// Check what's detected
+console.log('Hostname:', window.location.hostname);
+console.log('Port:', window.location.port);
+console.log('Protocol:', window.location.protocol);
+
+// Force activation
+localStorage.setItem('apiMockGui.forceEnable', 'true');
+window.location.reload();
+```
+
+### 📱 UI Issues
+
+**Panel too small/large?**
+```tsx
+// Use manual component with custom size
+<ApiMockManager
+  panelWidth="1000px"
+  panelHeight="800px"
+  position="top-left"
+/>
+```
+
+**Can't see the button on mobile?**
+- Button is optimized for desktop development
+- Use manual component for mobile testing
+
+### ⚡ Performance Issues
+
+**Slow response times?**
+- Check if you have many APIs configured
+- Disable unused APIs instead of deleting them
+- Restart the mock server periodically

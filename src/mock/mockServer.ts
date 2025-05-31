@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { MockApi, MockResponseCase, MockServerConfig, MockServerInstance } from '../types';
 
@@ -8,6 +8,7 @@ export class MockServer implements MockServerInstance {
   public isRunning = false;
   private handlerCount = 0;
   private hasBeenStarted = false; // 한 번이라도 시작된 적이 있는지 추적
+  private trackedInstances = new Set<AxiosInstance>(); // 추적 중인 axios 인스턴스들
 
   constructor(config: MockServerConfig = {}) {
     this.config = {
@@ -16,7 +17,39 @@ export class MockServer implements MockServerInstance {
       ...config
     };
     
+    // axios.create 메서드를 오버라이드하여 새로 생성되는 인스턴스도 추적
+    this.interceptAxiosCreate();
+    
     console.log('🎭 MockServer 인스턴스가 생성되었습니다.');
+  }
+
+  private interceptAxiosCreate(): void {
+    const originalCreate = axios.create;
+    
+    axios.create = (config?: any) => {
+      const instance = originalCreate.call(axios, config);
+      this.trackedInstances.add(instance);
+      
+      // 이미 실행 중인 mock server가 있다면 새 인스턴스에도 적용
+      if (this.isRunning && this.mockAdapter) {
+        this.applyMockToInstance(instance);
+      }
+      
+      return instance;
+    };
+  }
+
+  private applyMockToInstance(instance: AxiosInstance): void {
+    if (!this.mockAdapter) return;
+    
+    // 각 인스턴스에 동일한 mock adapter를 적용
+    const instanceMock = new MockAdapter(instance, {
+      delayResponse: 0,
+      onNoMatch: this.config.onUnhandledRequest === 'bypass' ? 'passthrough' : 'throwException'
+    });
+    
+    // 현재 설정된 모든 핸들러를 새 인스턴스에도 적용
+    // (이것은 updateHandlers가 호출될 때 자동으로 처리됨)
   }
 
   async start(): Promise<void> {
@@ -26,15 +59,21 @@ export class MockServer implements MockServerInstance {
     }
 
     try {
-      // axios-mock-adapter 인스턴스 생성
+      // 1. 기본 axios 인스턴스에 mock adapter 적용
       this.mockAdapter = new MockAdapter(axios, { 
         delayResponse: 0,
         onNoMatch: this.config.onUnhandledRequest === 'bypass' ? 'passthrough' : 'throwException'
       });
 
+      // 2. 이미 생성된 모든 axios 인스턴스에도 mock 적용
+      this.trackedInstances.forEach(instance => {
+        this.applyMockToInstance(instance);
+      });
+
       this.isRunning = true;
       this.hasBeenStarted = true; // 시작됨을 표시
-      console.log('✅ Mock server가 성공적으로 시작되었습니다 (axios-mock-adapter 사용)');
+      console.log('✅ Mock server가 성공적으로 시작되었습니다');
+      console.log(`📡 ${this.trackedInstances.size + 1}개의 axios 인스턴스에 Mock이 적용되었습니다 (기본 + 생성된 인스턴스들)`);
     } catch (error) {
       console.error('❌ Mock server 시작 실패:', error);
       throw error;
@@ -52,6 +91,16 @@ export class MockServer implements MockServerInstance {
         this.mockAdapter.restore();
         this.mockAdapter = null;
       }
+
+      // 모든 추적된 인스턴스의 mock도 정리
+      this.trackedInstances.forEach(instance => {
+        try {
+          // axios-mock-adapter가 인스턴스에 설정되어 있다면 정리
+          (instance as any).__mockAdapter?.restore?.();
+        } catch (error) {
+          // 무시 - 이미 정리되었거나 설정되지 않음
+        }
+      });
 
       this.isRunning = false;
       this.handlerCount = 0;
@@ -79,16 +128,34 @@ export class MockServer implements MockServerInstance {
 
     // 새로운 핸들러 등록
     this.createHandlers(apis);
+    
+    // 모든 추적된 인스턴스에도 동일한 핸들러 적용
+    this.trackedInstances.forEach(instance => {
+      try {
+        const instanceMock = new MockAdapter(instance, {
+          delayResponse: 0,
+          onNoMatch: this.config.onUnhandledRequest === 'bypass' ? 'passthrough' : 'throwException'
+        });
+        this.createHandlersForAdapter(instanceMock, apis);
+      } catch (error) {
+        console.warn('일부 axios 인스턴스에 mock 적용 실패:', error);
+      }
+    });
+
     this.handlerCount = this.getEnabledApiCount(apis);
 
     if (this.handlerCount > 0) {
       console.log(`📡 ${this.handlerCount}개의 Mock API 핸들러가 업데이트되었습니다.`);
+      console.log(`🔗 ${this.trackedInstances.size + 1}개의 axios 인스턴스에 적용됨`);
     }
   }
 
   private createHandlers(apis: MockApi[]): void {
     if (!this.mockAdapter) return;
+    this.createHandlersForAdapter(this.mockAdapter, apis);
+  }
 
+  private createHandlersForAdapter(adapter: MockAdapter, apis: MockApi[]): void {
     apis.forEach(api => {
       if (!api.isEnabled) return;
 
@@ -102,7 +169,7 @@ export class MockServer implements MockServerInstance {
       try {
         switch (method) {
           case 'get':
-            this.mockAdapter!.onGet(fullPath).reply(async () => {
+            adapter.onGet(fullPath).reply(async () => {
               if (activeCase.delay && activeCase.delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, activeCase.delay));
               }
@@ -110,7 +177,7 @@ export class MockServer implements MockServerInstance {
             });
             break;
           case 'post':
-            this.mockAdapter!.onPost(fullPath).reply(async () => {
+            adapter.onPost(fullPath).reply(async () => {
               if (activeCase.delay && activeCase.delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, activeCase.delay));
               }
@@ -118,7 +185,7 @@ export class MockServer implements MockServerInstance {
             });
             break;
           case 'put':
-            this.mockAdapter!.onPut(fullPath).reply(async () => {
+            adapter.onPut(fullPath).reply(async () => {
               if (activeCase.delay && activeCase.delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, activeCase.delay));
               }
@@ -126,7 +193,7 @@ export class MockServer implements MockServerInstance {
             });
             break;
           case 'delete':
-            this.mockAdapter!.onDelete(fullPath).reply(async () => {
+            adapter.onDelete(fullPath).reply(async () => {
               if (activeCase.delay && activeCase.delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, activeCase.delay));
               }
@@ -134,7 +201,7 @@ export class MockServer implements MockServerInstance {
             });
             break;
           case 'patch':
-            this.mockAdapter!.onPatch(fullPath).reply(async () => {
+            adapter.onPatch(fullPath).reply(async () => {
               if (activeCase.delay && activeCase.delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, activeCase.delay));
               }

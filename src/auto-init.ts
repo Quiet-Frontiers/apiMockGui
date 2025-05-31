@@ -55,6 +55,9 @@ const initFloatingButton = () => {
   }
 
   try {
+    // CSS 스타일 로드
+    loadStyles();
+    
     // Wait for React to be available
     if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
       if (initAttempts < MAX_INIT_ATTEMPTS) {
@@ -203,4 +206,23 @@ if (typeof window !== 'undefined') {
       console.error('API Mock GUI cleanup failed:', error);
     }
   };
-} 
+}
+
+// CSS 스타일 로드
+const loadStyles = () => {
+  if (typeof document === 'undefined') return;
+  
+  // 이미 로드된 스타일시트가 있는지 확인
+  if (document.querySelector('link[data-api-mock-gui-styles]')) return;
+  
+  try {
+    // CSS를 동적으로 삽입
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/api-mock-gui/dist/styles.css'; // 패키지에서 CSS 로드 시도
+    link.setAttribute('data-api-mock-gui-styles', 'true');
+    document.head.appendChild(link);
+  } catch (error) {
+    console.warn('Could not load API Mock GUI styles:', error);
+  }
+}; 

@@ -117,6 +117,9 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!draggable || !panelRef.current) return;
     
+    // 버튼 클릭인 경우 드래그 방지
+    if ((e.target as HTMLElement).closest('button')) return;
+    
     setIsDragging(true);
     const rect = panelRef.current.getBoundingClientRect();
     dragStartRef.current = {
@@ -182,7 +185,7 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   };
 
   const FloatingButton = () => (
-    <div
+    <button
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -206,7 +209,8 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
         justifyContent: 'center',
         transition: 'all 0.3s ease',
         border: '3px solid rgba(255, 255, 255, 0.3)',
-        backdropFilter: 'blur(10px)'
+        backdropFilter: 'blur(10px)',
+        outline: 'none'
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.1)';
@@ -257,7 +261,7 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
           }
         `}
       </style>
-    </div>
+    </button>
   );
 
   const handleSaveNewApi = () => {
@@ -618,17 +622,21 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
             Mock APIs ({store.apis.length})
           </h3>
           <button
-            onClick={() => setEditingApi({
-              id: '',
-              name: '',
-              method: 'GET' as HttpMethod,
-              path: '',
-              description: '',
-              cases: [],
-              isEnabled: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            })}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setEditingApi({
+                id: '',
+                name: '',
+                method: 'GET' as HttpMethod,
+                path: '',
+                description: '',
+                cases: [],
+                isEnabled: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              });
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -641,7 +649,8 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               fontSize: '14px',
               fontWeight: '500',
               cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
+              outline: 'none'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#2563EB';
@@ -822,7 +831,11 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {minimizable && (
             <button
-              onClick={() => setIsMinimized(!isMinimized)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsMinimized(!isMinimized);
+              }}
               style={{
                 width: '32px',
                 height: '32px',
@@ -833,7 +846,8 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                outline: 'none'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#E2E8F0';
@@ -846,7 +860,11 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
             </button>
           )}
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
             style={{
               width: '32px',
               height: '32px',
@@ -857,7 +875,8 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
+              outline: 'none'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#FEE2E2';
