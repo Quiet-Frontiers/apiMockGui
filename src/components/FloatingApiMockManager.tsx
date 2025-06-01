@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Settings, X, Play, Square, Wifi, WifiOff, Minimize2, Maximize2, Plus, Edit, Trash2, Database, Server, Zap } from 'lucide-react';
 import { ApiMockManagerProps, MockApi, MockResponseCase, HttpMethod, HttpStatus } from '../types';
 import { MockServer } from '../mock/mockServer';
@@ -13,6 +13,211 @@ interface FloatingApiMockManagerProps extends ApiMockManagerProps {
   minimizable?: boolean;
   draggable?: boolean;
 }
+
+// API 폼을 별도 컴포넌트로 분리 - 내부 상태 관리로 포커스 문제 해결
+const ApiForm = React.memo(({ 
+  editingApi, 
+  onSave, 
+  onCancel 
+}: {
+  editingApi: MockApi | null;
+  onSave: (apiData: { name: string; method: HttpMethod; path: string; description: string }) => void;
+  onCancel: () => void;
+}) => {
+  // 내부에서 상태 관리 - 부모 상태 변화와 무관하게 동작
+  const [formData, setFormData] = useState({
+    name: editingApi?.name || '',
+    method: (editingApi?.method || 'GET') as HttpMethod,
+    path: editingApi?.path || '',
+    description: editingApi?.description || ''
+  });
+
+  // editingApi가 변경될 때만 폼 데이터 초기화
+  useEffect(() => {
+    if (editingApi) {
+      setFormData({
+        name: editingApi.name || '',
+        method: (editingApi.method || 'GET') as HttpMethod,
+        path: editingApi.path || '',
+        description: editingApi.description || ''
+      });
+    }
+  }, [editingApi?.id]); // id로만 의존성 체크
+
+  const handleSubmit = useCallback(() => {
+    if (!formData.name || !formData.path) {
+      alert('Please fill in name and path');
+      return;
+    }
+    onSave(formData);
+  }, [formData, onSave]);
+
+  if (!editingApi) return null;
+
+  return (
+    <div style={{
+      backgroundColor: '#F8FAFC',
+      padding: '20px',
+      borderRadius: '12px',
+      border: '1px solid #E2E8F0',
+      marginBottom: '20px'
+    }}>
+      <h3 style={{
+        fontWeight: '600',
+        fontSize: '16px',
+        color: '#1E293B',
+        margin: '0 0 16px 0'
+      }}>
+        {editingApi.id ? 'Edit API' : 'Add New API'}
+      </h3>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '4px'
+          }}>
+            Name
+          </label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="e.g., Get Users"
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #D1D5DB',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+          />
+        </div>
+        
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '4px'
+            }}>
+              Method
+            </label>
+            <select
+              value={formData.method}
+              onChange={(e) => setFormData(prev => ({ ...prev, method: e.target.value as HttpMethod }))}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #D1D5DB',
+                borderRadius: '6px',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+            >
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+            </select>
+          </div>
+          
+          <div style={{ flex: 2 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '4px'
+            }}>
+              Path
+            </label>
+            <input
+              type="text"
+              value={formData.path}
+              onChange={(e) => setFormData(prev => ({ ...prev, path: e.target.value }))}
+              placeholder="e.g., /api/users"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #D1D5DB',
+                borderRadius: '6px',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '4px'
+          }}>
+            Description (optional)
+          </label>
+          <input
+            type="text"
+            value={formData.description}
+            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            placeholder="Brief description of this API"
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #D1D5DB',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+          />
+        </div>
+        
+        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+          <button
+            onClick={handleSubmit}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: '#10B981',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            {editingApi.id ? 'Update' : 'Add'} API
+          </button>
+          <button
+            onClick={onCancel}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: '1px solid #D1D5DB',
+              backgroundColor: 'white',
+              color: '#6B7280',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   serverConfig,
@@ -37,16 +242,12 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [editingApi, setEditingApi] = useState<MockApi | null>(null);
   const [editingCase, setEditingCase] = useState<{ api: MockApi; case: MockResponseCase } | null>(null);
-  const [newApiForm, setNewApiForm] = useState({ 
-    name: '', 
-    method: 'GET' as HttpMethod, 
-    path: '', 
-    description: '' 
-  });
   
   const mockServerRef = useRef<MockServer | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef<number>(0); // 스크롤 위치 보존용
 
   const store = useMockApiStore();
 
@@ -75,6 +276,30 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
       guiProps.onConfigChange(store.apis);
     }
   }, [store.apis]);
+
+  // 스크롤 위치 보존
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const saveScrollPosition = () => {
+      scrollPositionRef.current = container.scrollTop;
+    };
+
+    const restoreScrollPosition = () => {
+      container.scrollTop = scrollPositionRef.current;
+    };
+
+    container.addEventListener('scroll', saveScrollPosition);
+    
+    // 컴포넌트 업데이트 후 스크롤 복원
+    const timeoutId = setTimeout(restoreScrollPosition, 0);
+
+    return () => {
+      container.removeEventListener('scroll', saveScrollPosition);
+      clearTimeout(timeoutId);
+    };
+  });
 
   const handleStartServer = async () => {
     if (!mockServerRef.current) return;
@@ -281,17 +506,12 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
     </button>
   );
 
-  const handleSaveNewApi = () => {
-    if (!newApiForm.name || !newApiForm.path) {
-      alert('Please fill in name and path');
-      return;
-    }
-
+  const handleSaveNewApi = useCallback((apiData: { name: string; method: HttpMethod; path: string; description: string }) => {
     const newApi = {
-      name: newApiForm.name,
-      method: newApiForm.method,
-      path: newApiForm.path,
-      description: newApiForm.description,
+      name: apiData.name,
+      method: apiData.method,
+      path: apiData.path,
+      description: apiData.description,
       cases: [{
         id: `case-${Date.now()}`,
         name: 'Default Response',
@@ -306,10 +526,9 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
 
     store.addApi(newApi);
     setEditingApi(null);
-    setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
-  };
+  }, [store]);
 
-  const SimpleMockGui = () => {
+  const SimpleMockGui = useMemo(() => {
     return (
       <div style={{ padding: '20px' }}>
         {/* Server Status Section */}
@@ -485,7 +704,7 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {store.apis.map((api, index) => (
-                <div key={index} style={{
+                <div key={api.id || index} style={{
                   backgroundColor: 'white',
                   padding: '16px',
                   borderRadius: '8px',
@@ -559,181 +778,13 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
           )}
         </div>
 
-        {/* New API Form */}
-        {editingApi && (
-          <div style={{
-            backgroundColor: '#F8FAFC',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid #E2E8F0',
-            marginBottom: '20px'
-          }}>
-            <h3 style={{
-              fontWeight: '600',
-              fontSize: '16px',
-              color: '#1E293B',
-              margin: '0 0 16px 0'
-            }}>
-              {editingApi.id ? 'Edit API' : 'Add New API'}
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '4px'
-                }}>
-                  Name
-                </label>
-                <input
-                  type="text"
-                  value={newApiForm.name}
-                  onChange={(e) => setNewApiForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., Get Users"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-              
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
-                    Method
-                  </label>
-                  <select
-                    value={newApiForm.method}
-                    onChange={(e) => setNewApiForm(prev => ({ ...prev, method: e.target.value as HttpMethod }))}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid #D1D5DB',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
-                  >
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                    <option value="PATCH">PATCH</option>
-                  </select>
-                </div>
-                
-                <div style={{ flex: 2 }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
-                    Path
-                  </label>
-                  <input
-                    type="text"
-                    value={newApiForm.path}
-                    onChange={(e) => setNewApiForm(prev => ({ ...prev, path: e.target.value }))}
-                    placeholder="e.g., /api/users"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid #D1D5DB',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '4px'
-                }}>
-                  Description (optional)
-                </label>
-                <input
-                  type="text"
-                  value={newApiForm.description}
-                  onChange={(e) => setNewApiForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Brief description of this API"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-              
-              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                <button
-                  onClick={handleSaveNewApi}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: '#10B981',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {editingApi.id ? 'Update' : 'Add'} API
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingApi(null);
-                    setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    border: '1px solid #D1D5DB',
-                    backgroundColor: 'white',
-                    color: '#6B7280',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Status Info */}
         <div style={{
           fontSize: '12px',
           color: '#94A3B8',
           textAlign: 'center'
         }}>
-          API Mock GUI v2.0.13 - React Component
+          API Mock GUI v2.0.15 - React Component
         </div>
 
         {serverError && (
@@ -751,7 +802,13 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
         )}
       </div>
     );
-  };
+  }, [
+    isServerRunning, 
+    store.apis, 
+    serverError,
+    handleStartServer,
+    handleStopServer
+  ]);
 
   const FloatingPanel = () => (
     <div
@@ -870,12 +927,26 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
 
       {/* Content - 여기서는 드래그 비활성화 */}
       {!isMinimized && (
-        <div style={{ 
-          height: 'calc(100% - 65px)', 
-          overflow: 'auto',
-          pointerEvents: 'auto'
-        }}>
-          <SimpleMockGui />
+        <div 
+          ref={scrollContainerRef}
+          style={{ 
+            height: 'calc(100% - 65px)', 
+            overflow: 'auto',
+            pointerEvents: 'auto'
+          }}
+        >
+          {SimpleMockGui}
+          
+          {/* New API Form - 별도 컴포넌트로 분리되어 포커스 문제 해결 */}
+          {editingApi && (
+            <div style={{ padding: '0 20px 20px' }}>
+              <ApiForm
+                editingApi={editingApi}
+                onSave={handleSaveNewApi}
+                onCancel={() => setEditingApi(null)}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
