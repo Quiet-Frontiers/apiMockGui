@@ -312,7 +312,7 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   const SimpleMockGui = () => {
     return (
       <div style={{ padding: '20px' }}>
-        {/* Server Status Section (순수 JS 버전과 동일) */}
+        {/* Server Status Section */}
         <div style={{
           backgroundColor: '#F1F5F9',
           padding: '20px',
@@ -388,94 +388,352 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               {isServerRunning ? <Square size={16} /> : <Play size={16} />}
               <span>{isServerRunning ? 'Stop' : 'Start'}</span>
             </button>
-            <span style={{
-              fontSize: '14px',
-              color: '#64748B'
-            }}>
-              Ready for testing
-            </span>
-          </div>
-        </div>
-
-        {/* Info Section (순수 JS 버전과 동일) */}
-        <div style={{
-          textAlign: 'center',
-          color: '#6B7280',
-          lineHeight: '1.6'
-        }}>
-          <h3 style={{
-            margin: '0 0 10px 0',
-            color: '#1F2937'
-          }}>
-            🎭 API Mock GUI
-          </h3>
-          <p style={{ margin: '10px 0' }}>
-            현재 React 컴포넌트 버전입니다.
-          </p>
-          <p style={{ margin: '10px 0' }}>
-            순수 JS 버전과 동일한 디자인으로 업데이트되었습니다:
-          </p>
-          <div style={{
-            background: '#F3F4F6',
-            padding: '8px',
-            borderRadius: '4px',
-            margin: '10px 0',
-            fontSize: '14px',
-            color: '#374151',
-            display: 'block'
-          }}>
-            import 'api-mock-gui/auto';
-          </div>
-          
-          <div style={{ marginTop: '20px' }}>
             <button
-              onClick={() => {
-                // Add API 기능 알림
-                alert('➕ API 추가 기능\n\n실제 프로젝트에서는 완전한 GUI를 사용할 수 있습니다.');
-              }}
+              onClick={() => setEditingApi({} as MockApi)}
               style={{
-                background: '#3B82F6',
-                color: 'white',
-                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                margin: '5px',
+                borderRadius: '8px',
+                border: 'none',
                 fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                backgroundColor: '#3B82F6',
+                color: 'white',
+                transition: 'background-color 0.2s',
                 outline: 'none'
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2563EB';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3B82F6';
+              }}
             >
-              ➕ Add API
+              <Plus size={16} />
+              <span>Add API</span>
             </button>
             <button
               onClick={() => {
-                // Save Config 기능 알림
-                alert('💾 설정이 저장되었습니다!');
+                const config = { apis: store.apis };
+                // Save to public/api-config.json
+                fetch('/api/save-config', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ filePath: 'public/api-config.json', config })
+                }).then(() => {
+                  alert('💾 Configuration saved successfully!');
+                }).catch(() => {
+                  alert('❌ Failed to save configuration');
+                });
               }}
               style={{
-                background: '#8B5CF6',
-                color: 'white',
-                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                margin: '5px',
+                borderRadius: '8px',
+                border: 'none',
                 fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                backgroundColor: '#8B5CF6',
+                color: 'white',
+                transition: 'background-color 0.2s',
                 outline: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#7C3AED';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#8B5CF6';
               }}
             >
               💾 Save Config
             </button>
           </div>
-          
-          <p style={{
-            margin: '20px 0 10px 0',
-            fontSize: '12px',
-            color: '#94A3B8'
+        </div>
+
+        {/* API List Section */}
+        <div style={{
+          backgroundColor: '#FAFAFA',
+          padding: '20px',
+          borderRadius: '12px',
+          border: '1px solid #E2E8F0',
+          marginBottom: '20px'
+        }}>
+          <h3 style={{
+            fontWeight: '600',
+            fontSize: '16px',
+            color: '#1E293B',
+            margin: '0 0 16px 0'
           }}>
-            완전한 GUI는 React 컴포넌트에서 이용하세요<br />
-            npm install api-mock-gui
-          </p>
+            API Endpoints ({store.apis.length})
+          </h3>
+          
+          {store.apis.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              color: '#6B7280',
+              padding: '20px',
+              fontSize: '14px'
+            }}>
+              No APIs configured yet. Click "Add API" to get started.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {store.apis.map((api, index) => (
+                <div key={index} style={{
+                  backgroundColor: 'white',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #E2E8F0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '4px'
+                    }}>
+                      <span style={{
+                        backgroundColor: '#3B82F6',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        {api.method}
+                      </span>
+                      <span style={{
+                        fontWeight: '500',
+                        color: '#1F2937'
+                      }}>
+                        {api.path}
+                      </span>
+                    </div>
+                    <div style={{
+                      fontSize: '14px',
+                      color: '#6B7280'
+                    }}>
+                      {api.name} ({api.cases?.length || 0} cases)
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => setEditingApi(api)}
+                      style={{
+                        padding: '6px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        backgroundColor: '#F3F4F6',
+                        cursor: 'pointer',
+                        color: '#6B7280'
+                      }}
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
+                      onClick={() => store.deleteApi(api.id || '')}
+                      style={{
+                        padding: '6px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        backgroundColor: '#FEF2F2',
+                        cursor: 'pointer',
+                        color: '#DC2626'
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* New API Form */}
+        {editingApi && (
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            padding: '20px',
+            borderRadius: '12px',
+            border: '1px solid #E2E8F0',
+            marginBottom: '20px'
+          }}>
+            <h3 style={{
+              fontWeight: '600',
+              fontSize: '16px',
+              color: '#1E293B',
+              margin: '0 0 16px 0'
+            }}>
+              {editingApi.id ? 'Edit API' : 'Add New API'}
+            </h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '4px'
+                }}>
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={newApiForm.name}
+                  onChange={(e) => setNewApiForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g., Get Users"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
+                    Method
+                  </label>
+                  <select
+                    value={newApiForm.method}
+                    onChange={(e) => setNewApiForm(prev => ({ ...prev, method: e.target.value as HttpMethod }))}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: '1px solid #D1D5DB',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                  </select>
+                </div>
+                
+                <div style={{ flex: 2 }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
+                    Path
+                  </label>
+                  <input
+                    type="text"
+                    value={newApiForm.path}
+                    onChange={(e) => setNewApiForm(prev => ({ ...prev, path: e.target.value }))}
+                    placeholder="e.g., /api/users"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: '1px solid #D1D5DB',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '4px'
+                }}>
+                  Description (optional)
+                </label>
+                <input
+                  type="text"
+                  value={newApiForm.description}
+                  onChange={(e) => setNewApiForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Brief description of this API"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <button
+                  onClick={handleSaveNewApi}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#10B981',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {editingApi.id ? 'Update' : 'Add'} API
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingApi(null);
+                    setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    border: '1px solid #D1D5DB',
+                    backgroundColor: 'white',
+                    color: '#6B7280',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Status Info */}
+        <div style={{
+          fontSize: '12px',
+          color: '#94A3B8',
+          textAlign: 'center'
+        }}>
+          API Mock GUI v2.0.13 - React Component
         </div>
 
         {serverError && (
