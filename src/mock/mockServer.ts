@@ -19,8 +19,6 @@ export class MockServer implements MockServerInstance {
     
     // axios.create 메서드를 오버라이드하여 새로 생성되는 인스턴스도 추적
     this.interceptAxiosCreate();
-    
-    console.log('🎭 MockServer 인스턴스가 생성되었습니다.');
   }
 
   private interceptAxiosCreate(): void {
@@ -72,8 +70,6 @@ export class MockServer implements MockServerInstance {
 
       this.isRunning = true;
       this.hasBeenStarted = true; // 시작됨을 표시
-      console.log('✅ Mock server가 성공적으로 시작되었습니다');
-      console.log(`📡 ${this.trackedInstances.size + 1}개의 axios 인스턴스에 Mock이 적용되었습니다 (기본 + 생성된 인스턴스들)`);
     } catch (error) {
       console.error('❌ Mock server 시작 실패:', error);
       throw error;
@@ -104,7 +100,6 @@ export class MockServer implements MockServerInstance {
 
       this.isRunning = false;
       this.handlerCount = 0;
-      console.log('🛑 Mock server가 중지되었습니다.');
     } catch (error) {
       console.error('❌ Mock server 중지 실패:', error);
       throw error;
@@ -141,12 +136,11 @@ export class MockServer implements MockServerInstance {
         console.warn('일부 axios 인스턴스에 mock 적용 실패:', error);
       }
     });
-
+    
     this.handlerCount = this.getEnabledApiCount(apis);
 
     if (this.handlerCount > 0) {
-      console.log(`📡 ${this.handlerCount}개의 Mock API 핸들러가 업데이트되었습니다.`);
-      console.log(`🔗 ${this.trackedInstances.size + 1}개의 axios 인스턴스에 적용됨`);
+      // Remove console.log statements
     }
   }
 
@@ -221,19 +215,21 @@ export class MockServer implements MockServerInstance {
     const baseUrl = this.config.baseUrl || '';
     let fullPath = baseUrl + path;
     
-    // URL 파라미터를 정규표현식으로 변환 (/api/users/:id -> /api/users/\d+)
-    if (fullPath.includes(':')) {
-      const regexPath = fullPath.replace(/:[\w]+/g, '\\d+');
-      return new RegExp(regexPath);
+    // URL 매개변수를 정규식으로 변환
+    fullPath = fullPath.replace(/:([^/]+)/g, '([^/]+)');
+    
+    // 정규식으로 변환할 필요가 있는지 확인
+    if (fullPath.includes('(') || fullPath.includes('[') || fullPath.includes('*')) {
+      return new RegExp(`^${fullPath}$`);
     }
     
     return fullPath;
   }
 
   private getEnabledApiCount(apis: MockApi[]): number {
-    return apis.filter(api => api.isEnabled && (
-      api.cases.find(c => c.id === api.activeCase) || api.cases.find(c => c.isActive)
-    )).length;
+    return apis.filter(api => 
+      api.isEnabled && (api.cases.find(c => c.id === api.activeCase) || api.cases.find(c => c.isActive))
+    ).length;
   }
 
   getHandlerCount(): number {
@@ -245,16 +241,12 @@ export class MockServer implements MockServerInstance {
   }
 }
 
-// 글로벌 인스턴스를 위한 팩토리 함수
-let globalMockServer: MockServer | null = null;
-
+// Factory function
 export function createMockServer(config?: MockServerConfig): MockServer {
   return new MockServer(config);
 }
 
 export function getGlobalMockServer(config?: MockServerConfig): MockServer {
-  if (!globalMockServer) {
-    globalMockServer = new MockServer(config);
-  }
-  return globalMockServer;
+  // 전역 인스턴스 관리 로직을 여기에 구현 가능
+  return new MockServer(config);
 } 

@@ -44,9 +44,6 @@ const initFloatingButton = () => {
         localStorage.getItem('apiMockGui.forceEnable') === 'true';
     // 개발 환경이 아닌 경우에도 강제 활성화 옵션 제공
     if (!isDevelopment) {
-        console.log('🔒 API Mock GUI는 개발 환경에서만 자동 활성화됩니다.');
-        console.log('💡 강제 활성화하려면: localStorage.setItem("apiMockGui.forceEnable", "true")');
-        console.log('💡 또는 URL에 ?dev=true 파라미터를 추가하세요.');
         return;
     }
     try {
@@ -55,7 +52,6 @@ const initFloatingButton = () => {
         // Wait for React to be available
         if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
             if (initAttempts < MAX_INIT_ATTEMPTS) {
-                console.log(`⏳ Waiting for React to load... (attempt ${initAttempts}/${MAX_INIT_ATTEMPTS})`);
                 setTimeout(initFloatingButton, 500);
                 return;
             }
@@ -67,7 +63,6 @@ const initFloatingButton = () => {
         // Check if container already exists (prevent duplicate initialization)
         const existingContainer = document.getElementById('api-mock-gui-floating-container');
         if (existingContainer) {
-            console.log('🔄 Floating button container already exists, skipping initialization');
             isInitialized = true;
             return;
         }
@@ -87,7 +82,6 @@ const initFloatingButton = () => {
         // Wait for document.body to be available
         if (!document.body) {
             if (initAttempts < MAX_INIT_ATTEMPTS) {
-                console.log(`⏳ Waiting for document.body... (attempt ${initAttempts}/${MAX_INIT_ATTEMPTS})`);
                 setTimeout(initFloatingButton, 100);
                 return;
             }
@@ -121,22 +115,19 @@ const initFloatingButton = () => {
             draggable: true,
             minimizable: true,
             onServerStart: () => {
-                console.log('🎭 API Mock Server started!');
+                // Server started
             },
             onServerStop: () => {
-                console.log('🛑 API Mock Server stopped.');
+                // Server stopped
             }
         });
         reactRoot.render(floatingManager);
         isInitialized = true;
-        console.log('🎭 API Mock GUI Floating Button auto-initialized!');
-        console.log('💡 Click the floating button at bottom-right to use.');
     }
     catch (error) {
         console.error('API Mock GUI auto-initialization failed:', error);
         // Retry on error (with limit)
         if (initAttempts < MAX_INIT_ATTEMPTS) {
-            console.log(`🔄 Retrying initialization in 1 second... (attempt ${initAttempts}/${MAX_INIT_ATTEMPTS})`);
             setTimeout(initFloatingButton, 1000);
         }
     }
@@ -182,7 +173,6 @@ if (typeof window !== 'undefined') {
             containerElement = null;
             reactRoot = null;
             initAttempts = 0;
-            console.log('🧹 API Mock GUI cleaned up.');
         }
         catch (error) {
             console.error('API Mock GUI cleanup failed:', error);
@@ -236,9 +226,10 @@ const loadStyles = () => {
       }
     `;
         document.head.appendChild(style);
-        console.log('✅ API Mock GUI 기본 스타일이 로드되었습니다.');
     }
     catch (error) {
         console.warn('⚠️ API Mock GUI 스타일 로드 실패:', error);
     }
 };
+// Export 선언
+export { initFloatingButton, loadStyles };

@@ -41,6 +41,8 @@ export default defineConfig({
       }
     }
   ],
+  // 개발 환경에서 dist 폴더도 정적 파일로 제공
+  publicDir: 'public',
   define: {
     global: 'globalThis',
   },
@@ -52,6 +54,12 @@ export default defineConfig({
   },
   resolve: {
     conditions: ['browser']
+  },
+  // 개발 서버 설정 - dist 폴더의 파일들을 제공
+  server: {
+    fs: {
+      allow: ['..', '.', 'dist']
+    }
   },
   build: {
     lib: {

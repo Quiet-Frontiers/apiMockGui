@@ -1,39 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔧 브라우저용 UMD 번들 생성 중...');
+console.log('🔧 브라우저용 번들 확인 중...');
 
-const autoInitPath = path.join(__dirname, '../dist/auto-init.js');
-const autoInitContent = fs.readFileSync(autoInitPath, 'utf8');
+const browserBundlePath = path.join(__dirname, '../dist/auto-init.browser.js');
 
-// ES6 모듈을 UMD 형태로 변경
-const umdContent = `
-(function (global, factory) {
-    if (typeof exports === 'object' && typeof module !== 'undefined') {
-        // CommonJS
-        factory(exports, require('react'), require('react-dom'));
-    } else if (typeof define === 'function' && define.amd) {
-        // AMD
-        define(['exports', 'react', 'react-dom'], factory);
-    } else {
-        // 브라우저 전역
-        var globalThis = global || self;
-        factory({}, globalThis.React, globalThis.ReactDOM);
-    }
-})(this, (function (exports, React, ReactDOM) {
-    'use strict';
-
-    // 원본 auto-init 코드를 수정하여 전역 React 사용
-    ${autoInitContent
-        .replace(/import React from 'react';/g, '// React는 전역에서 사용')
-        .replace(/import ReactDOM from 'react-dom\/client';/g, '// ReactDOM은 전역에서 사용')
-        .replace(/import { FloatingApiMockManager } from.*?;/g, '// FloatingApiMockManager 인라인')}
-
-}));
-`;
-
-// 브라우저용 파일 저장
-const browserPath = path.join(__dirname, '../dist/auto-init.browser.js');
-fs.writeFileSync(browserPath, umdContent);
-
-console.log('✅ 브라우저용 UMD 번들 생성 완료: dist/auto-init.browser.js'); 
+// auto-init.browser.js가 이미 존재하는지 확인
+if (fs.existsSync(browserBundlePath)) {
+    console.log('✅ 브라우저용 번들이 이미 존재합니다: dist/auto-init.browser.js');
+    
+    // 파일 크기 확인
+    const stats = fs.statSync(browserBundlePath);
+    console.log(`📊 파일 크기: ${(stats.size / 1024).toFixed(2)} KB`);
+    
+    // 파일 내용 확인 (첫 번째 줄)
+    const content = fs.readFileSync(browserBundlePath, 'utf8');
+    const firstLine = content.split('\n')[0];
+    console.log(`📝 첫 번째 줄: ${firstLine.substring(0, 100)}...`);
+    
+    console.log('✅ 브라우저용 번들 준비 완료');
+} else {
+    console.error('❌ auto-init.browser.js 파일이 없습니다!');
+    process.exit(1);
+} 

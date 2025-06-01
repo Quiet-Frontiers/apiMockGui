@@ -68,6 +68,27 @@ function App() {
       <h1>🎭 API Mock GUI Test App</h1>
       
       <div style={{ 
+        backgroundColor: '#e8f5e8', 
+        padding: '20px', 
+        borderRadius: '8px', 
+        marginBottom: '20px',
+        border: '1px solid #4caf50'
+      }}>
+        <h2>✨ 업데이트: React 컴포넌트가 브라우저 번들과 동일한 디자인으로!</h2>
+        <p><strong>이제 React 환경에서도 순수 JS 버전과 동일한 디자인을 사용합니다.</strong></p>
+        <ul>
+          <li>🎯 <strong>Database 아이콘</strong> - 깔끔한 데이터베이스 아이콘</li>
+          <li>🟢 <strong>실시간 상태 표시</strong> - 서버 상태에 따른 색상 변경</li>
+          <li>🎨 <strong>동일한 패널 디자인</strong> - 브라우저 번들과 같은 레이아웃</li>
+          <li>⚡ <strong>간소화된 UI</strong> - Start/Stop, Add API, Save Config</li>
+          <li>📱 <strong>반응형 디자인</strong> - 400x500px 패널 크기</li>
+        </ul>
+        <p style={{ margin: '10px 0', fontSize: '14px', color: '#1b5e20' }}>
+          React 프로젝트에서는 <code>import 'api-mock-gui/auto';</code> 한 줄로 이 기능을 사용할 수 있습니다.
+        </p>
+      </div>
+
+      <div style={{ 
         backgroundColor: '#f0f8ff', 
         padding: '20px', 
         borderRadius: '8px', 
@@ -183,6 +204,7 @@ function App() {
           <li><strong>Total Users:</strong> {users.length}</li>
           <li><strong>Loading:</strong> {loading ? 'Yes' : 'No'}</li>
           <li><strong>Error:</strong> {error || 'None'}</li>
+          <li><strong>GUI Version:</strong> React Component (v2.0.11) - 브라우저 번들과 동일한 디자인</li>
         </ul>
         <p style={{ fontSize: '12px', color: '#888', marginTop: '10px' }}>
           💡 Check browser console (F12) for detailed request/response logs

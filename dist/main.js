@@ -1,8 +1,9 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
+// React 기반 auto-init (업데이트된 컴포넌트 사용)
 import 'api-mock-gui/auto';
 import 'api-mock-gui/dist/styles.css';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import App from './App';
-createRoot(document.getElementById('root')).render(_jsx(StrictMode, { children: _jsx(App, {}) }));
+ReactDOM.createRoot(document.getElementById('root')).render(_jsx(React.StrictMode, { children: _jsx(App, {}) }));

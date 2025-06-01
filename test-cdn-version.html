@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN 버전 테스트 - API Mock GUI</title>
+</head>
+<body>
+    <h1>CDN 버전 테스트</h1>
+    <p>콘솔을 열어서 CDN에서 로드된 버전을 확인하세요.</p>
+    
+    <div id="info">
+        <h2>테스트 방법:</h2>
+        <ol>
+            <li>개발자 도구를 열고 Console 탭으로 이동</li>
+            <li>Console.log 메시지가 없으면 최신 버전(2.0.11) 로드됨</li>
+            <li>많은 Console.log가 나오면 이전 버전이 캐시됨</li>
+        </ol>
+        
+        <h3>현재 시간: <span id="timestamp"></span></h3>
+        <h3>CDN URL: <code>https://unpkg.com/api-mock-gui@2.0.11/dist/auto-init.browser.js</code></h3>
+        
+        <h3>캐시 우회 테스트:</h3>
+        <button onclick="loadWithCacheBuster()">캐시 우회로 재로드</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 현재 시간 표시
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        function loadWithCacheBuster() {
+            const timestamp = Date.now();
+            const script = document.createElement('script');
+            script.src = `https://unpkg.com/api-mock-gui@2.0.11/dist/auto-init.browser.js?v=${timestamp}`;
+            script.onload = function() {
+                document.getElementById('result').innerHTML = `
+                    <p style="color: green;">✅ 캐시 우회 로드 완료 (${new Date().toLocaleTimeString()})</p>
+                    <p>콘솔에서 console.log 메시지 확인하세요.</p>
+                `;
+            };
+            script.onerror = function() {
+                document.getElementById('result').innerHTML = `
+                    <p style="color: red;">❌ 로드 실패</p>
+                `;
+            };
+            document.head.appendChild(script);
+        }
+        
+        console.log('=== CDN 버전 테스트 시작 ===');
+        console.log('현재 시간:', new Date().toISOString());
+    </script>
+
+    <!-- 기본 CDN 로드 (캐시될 수 있음) -->
+    <script src="https://unpkg.com/api-mock-gui@2.0.11/dist/auto-init.browser.js"></script>
+    
+    <script>
+        console.log('=== CDN 스크립트 로드 완료 ===');
+        
+        // 5초 후 결과 분석
+        setTimeout(() => {
+            console.log('=== 테스트 완료 ===');
+            console.log('만약 위에 많은 console.log가 보이면 이전 버전이 캐시된 것입니다.');
+            console.log('console.log가 거의 없으면 2.0.11 버전이 올바르게 로드된 것입니다.');
+        }, 5000);
+    </script>
+</body>
+</html> 

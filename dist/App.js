@@ -52,6 +52,12 @@ function App() {
         fetchUsers();
     }, []);
     return (_jsxs("div", { style: { padding: '20px', maxWidth: '800px', margin: '0 auto' }, children: [_jsx("h1", { children: "\uD83C\uDFAD API Mock GUI Test App" }), _jsxs("div", { style: {
+                    backgroundColor: '#e8f5e8',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    border: '1px solid #4caf50'
+                }, children: [_jsx("h2", { children: "\u2728 \uC5C5\uB370\uC774\uD2B8: React \uCEF4\uD3EC\uB10C\uD2B8\uAC00 \uBE0C\uB77C\uC6B0\uC800 \uBC88\uB4E4\uACFC \uB3D9\uC77C\uD55C \uB514\uC790\uC778\uC73C\uB85C!" }), _jsx("p", { children: _jsx("strong", { children: "\uC774\uC81C React \uD658\uACBD\uC5D0\uC11C\uB3C4 \uC21C\uC218 JS \uBC84\uC804\uACFC \uB3D9\uC77C\uD55C \uB514\uC790\uC778\uC744 \uC0AC\uC6A9\uD569\uB2C8\uB2E4." }) }), _jsxs("ul", { children: [_jsxs("li", { children: ["\uD83C\uDFAF ", _jsx("strong", { children: "Database \uC544\uC774\uCF58" }), " - \uAE54\uB054\uD55C \uB370\uC774\uD130\uBCA0\uC774\uC2A4 \uC544\uC774\uCF58"] }), _jsxs("li", { children: ["\uD83D\uDFE2 ", _jsx("strong", { children: "\uC2E4\uC2DC\uAC04 \uC0C1\uD0DC \uD45C\uC2DC" }), " - \uC11C\uBC84 \uC0C1\uD0DC\uC5D0 \uB530\uB978 \uC0C9\uC0C1 \uBCC0\uACBD"] }), _jsxs("li", { children: ["\uD83C\uDFA8 ", _jsx("strong", { children: "\uB3D9\uC77C\uD55C \uD328\uB110 \uB514\uC790\uC778" }), " - \uBE0C\uB77C\uC6B0\uC800 \uBC88\uB4E4\uACFC \uAC19\uC740 \uB808\uC774\uC544\uC6C3"] }), _jsxs("li", { children: ["\u26A1 ", _jsx("strong", { children: "\uAC04\uC18C\uD654\uB41C UI" }), " - Start/Stop, Add API, Save Config"] }), _jsxs("li", { children: ["\uD83D\uDCF1 ", _jsx("strong", { children: "\uBC18\uC751\uD615 \uB514\uC790\uC778" }), " - 400x500px \uD328\uB110 \uD06C\uAE30"] })] }), _jsxs("p", { style: { margin: '10px 0', fontSize: '14px', color: '#1b5e20' }, children: ["React \uD504\uB85C\uC81D\uD2B8\uC5D0\uC11C\uB294 ", _jsx("code", { children: "import 'api-mock-gui/auto';" }), " \uD55C \uC904\uB85C \uC774 \uAE30\uB2A5\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."] })] }), _jsxs("div", { style: {
                     backgroundColor: '#f0f8ff',
                     padding: '20px',
                     borderRadius: '8px',
@@ -91,6 +97,6 @@ function App() {
                     backgroundColor: '#fff3e0',
                     borderRadius: '8px',
                     border: '1px solid #ffcc02'
-                }, children: [_jsx("h3", { children: "\uD83D\uDD0D Debug Info" }), _jsxs("ul", { style: { fontSize: '14px', color: '#666' }, children: [_jsxs("li", { children: [_jsx("strong", { children: "Base URL:" }), " ", api.defaults.baseURL] }), _jsxs("li", { children: [_jsx("strong", { children: "Total Users:" }), " ", users.length] }), _jsxs("li", { children: [_jsx("strong", { children: "Loading:" }), " ", loading ? 'Yes' : 'No'] }), _jsxs("li", { children: [_jsx("strong", { children: "Error:" }), " ", error || 'None'] })] }), _jsx("p", { style: { fontSize: '12px', color: '#888', marginTop: '10px' }, children: "\uD83D\uDCA1 Check browser console (F12) for detailed request/response logs" })] })] }));
+                }, children: [_jsx("h3", { children: "\uD83D\uDD0D Debug Info" }), _jsxs("ul", { style: { fontSize: '14px', color: '#666' }, children: [_jsxs("li", { children: [_jsx("strong", { children: "Base URL:" }), " ", api.defaults.baseURL] }), _jsxs("li", { children: [_jsx("strong", { children: "Total Users:" }), " ", users.length] }), _jsxs("li", { children: [_jsx("strong", { children: "Loading:" }), " ", loading ? 'Yes' : 'No'] }), _jsxs("li", { children: [_jsx("strong", { children: "Error:" }), " ", error || 'None'] }), _jsxs("li", { children: [_jsx("strong", { children: "GUI Version:" }), " React Component (v2.0.11) - \uBE0C\uB77C\uC6B0\uC800 \uBC88\uB4E4\uACFC \uB3D9\uC77C\uD55C \uB514\uC790\uC778"] })] }), _jsx("p", { style: { fontSize: '12px', color: '#888', marginTop: '10px' }, children: "\uD83D\uDCA1 Check browser console (F12) for detailed request/response logs" })] })] }));
 }
 export default App;
