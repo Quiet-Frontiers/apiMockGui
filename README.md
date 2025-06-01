@@ -32,8 +32,9 @@ npm install api-mock-gui axios axios-mock-adapter
 ### 2. Add to Your Project
 
 ```tsx
-// main.tsx or index.tsx - Add this ONE import only
+// main.tsx or index.tsx - Add these TWO imports
 import 'api-mock-gui/auto';                    // ✅ Auto-initialization
+import 'api-mock-gui/dist/styles.css';         // ✅ Required CSS styles
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -46,7 +47,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 );
 ```
 
-> **Note**: No CSS import needed! Styles are automatically included.
+> **Important**: Both imports are required! The CSS import ensures all UI elements (like close buttons, icons) display correctly.
 
 ### 3. Run Your Development Server
 
@@ -199,7 +200,7 @@ If you prefer manual control instead of auto-initialization:
 ```tsx
 import React from 'react';
 import { ApiMockManager } from 'api-mock-gui';
-// No CSS import needed - styles are included automatically
+import 'api-mock-gui/dist/styles.css';  // ✅ Required CSS import
 
 function App() {
   return (
@@ -331,7 +332,8 @@ Complete React + Vite example:
 
 ```tsx
 // main.tsx
-import 'api-mock-gui/auto';  // Only this import needed!
+import 'api-mock-gui/auto';                    // ✅ Auto-initialization
+import 'api-mock-gui/dist/styles.css';         // ✅ Required CSS import
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -379,7 +381,8 @@ export default App;
 
 2. **Import** (in your main.tsx/index.tsx):
    ```tsx
-   import 'api-mock-gui/auto';  // Only this import needed!
+   import 'api-mock-gui/auto';                  // ✅ Auto-initialization  
+   import 'api-mock-gui/dist/styles.css';       // ✅ Required CSS styles
    ```
 
 3. **Run dev server**: `npm run dev`
