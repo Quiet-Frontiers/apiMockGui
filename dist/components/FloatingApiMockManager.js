@@ -1,9 +1,121 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, Play, Square, Minimize2, Maximize2, Plus, Edit, Trash2, Database } from 'lucide-react';
 import { MockServer } from '../mock/mockServer';
 import { useMockApiStore } from '../hooks/useMockApiStore';
-export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServerStart, onServerStop, position = 'bottom-right', buttonText, buttonIcon, panelWidth = '400px', panelHeight = '500px', minimizable = true, draggable = true, ...guiProps }) => {
+// API 폼을 별도 컴포넌트로 분리 - 내부 상태 관리로 포커스 문제 해결
+const ApiForm = React.memo(({ editingApi, onSave, onCancel }) => {
+    // 내부에서 상태 관리 - 부모 상태 변화와 무관하게 동작
+    const [formData, setFormData] = useState({
+        name: editingApi?.name || '',
+        method: (editingApi?.method || 'GET'),
+        path: editingApi?.path || '',
+        description: editingApi?.description || ''
+    });
+    // editingApi가 변경될 때만 폼 데이터 초기화
+    useEffect(() => {
+        if (editingApi) {
+            setFormData({
+                name: editingApi.name || '',
+                method: (editingApi.method || 'GET'),
+                path: editingApi.path || '',
+                description: editingApi.description || ''
+            });
+        }
+    }, [editingApi?.id]); // id로만 의존성 체크
+    const handleSubmit = useCallback(() => {
+        if (!formData.name || !formData.path) {
+            alert('Please fill in name and path');
+            return;
+        }
+        onSave(formData);
+    }, [formData, onSave]);
+    if (!editingApi)
+        return null;
+    return (_jsxs("div", { style: {
+            backgroundColor: '#F8FAFC',
+            padding: '20px',
+            borderRadius: '12px',
+            border: '1px solid #E2E8F0',
+            marginBottom: '20px'
+        }, children: [_jsx("h3", { style: {
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    color: '#1E293B',
+                    margin: '0 0 16px 0'
+                }, children: editingApi.id ? 'Edit API' : 'Add New API' }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', gap: '12px' }, children: [_jsxs("div", { children: [_jsx("label", { style: {
+                                    display: 'block',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    color: '#374151',
+                                    marginBottom: '4px'
+                                }, children: "Name" }), _jsx("input", { type: "text", value: formData.name, onChange: (e) => setFormData(prev => ({ ...prev, name: e.target.value })), placeholder: "e.g., Get Users", style: {
+                                    width: '100%',
+                                    padding: '8px 12px',
+                                    border: '1px solid #D1D5DB',
+                                    borderRadius: '6px',
+                                    fontSize: '14px',
+                                    outline: 'none'
+                                } })] }), _jsxs("div", { style: { display: 'flex', gap: '12px' }, children: [_jsxs("div", { style: { flex: 1 }, children: [_jsx("label", { style: {
+                                            display: 'block',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            color: '#374151',
+                                            marginBottom: '4px'
+                                        }, children: "Method" }), _jsxs("select", { value: formData.method, onChange: (e) => setFormData(prev => ({ ...prev, method: e.target.value })), style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid #D1D5DB',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            outline: 'none'
+                                        }, children: [_jsx("option", { value: "GET", children: "GET" }), _jsx("option", { value: "POST", children: "POST" }), _jsx("option", { value: "PUT", children: "PUT" }), _jsx("option", { value: "DELETE", children: "DELETE" }), _jsx("option", { value: "PATCH", children: "PATCH" })] })] }), _jsxs("div", { style: { flex: 2 }, children: [_jsx("label", { style: {
+                                            display: 'block',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            color: '#374151',
+                                            marginBottom: '4px'
+                                        }, children: "Path" }), _jsx("input", { type: "text", value: formData.path, onChange: (e) => setFormData(prev => ({ ...prev, path: e.target.value })), placeholder: "e.g., /api/users", style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid #D1D5DB',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            outline: 'none'
+                                        } })] })] }), _jsxs("div", { children: [_jsx("label", { style: {
+                                    display: 'block',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    color: '#374151',
+                                    marginBottom: '4px'
+                                }, children: "Description (optional)" }), _jsx("input", { type: "text", value: formData.description, onChange: (e) => setFormData(prev => ({ ...prev, description: e.target.value })), placeholder: "Brief description of this API", style: {
+                                    width: '100%',
+                                    padding: '8px 12px',
+                                    border: '1px solid #D1D5DB',
+                                    borderRadius: '6px',
+                                    fontSize: '14px',
+                                    outline: 'none'
+                                } })] }), _jsxs("div", { style: { display: 'flex', gap: '8px', marginTop: '8px' }, children: [_jsxs("button", { onClick: handleSubmit, style: {
+                                    padding: '8px 16px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    backgroundColor: '#10B981',
+                                    color: 'white',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer'
+                                }, children: [editingApi.id ? 'Update' : 'Add', " API"] }), _jsx("button", { onClick: onCancel, style: {
+                                    padding: '8px 16px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #D1D5DB',
+                                    backgroundColor: 'white',
+                                    color: '#6B7280',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer'
+                                }, children: "Cancel" })] })] })] }));
+});
+export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServerStart, onServerStop, position = 'bottom-right', buttonText, buttonIcon, panelWidth = '400px', panelHeight = '500px', minimizable = true, draggable = true, resizable = true, minWidth = 300, minHeight = 200, maxWidth = 800, maxHeight = 1000, ...guiProps }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [isServerRunning, setIsServerRunning] = useState(false);
@@ -13,34 +125,19 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
     const [isDragging, setIsDragging] = useState(false);
     const [editingApi, setEditingApi] = useState(null);
     const [editingCase, setEditingCase] = useState(null);
-    const [newApiForm, setNewApiForm] = useState({
-        name: '',
-        method: 'GET',
-        path: '',
-        description: ''
-    });
     const mockServerRef = useRef(null);
     const panelRef = useRef(null);
     const dragStartRef = useRef(null);
     const scrollContainerRef = useRef(null);
+    const scrollPositionRef = useRef(0); // 스크롤 위치 보존용
     const store = useMockApiStore();
-    // 폼 입력 핸들러들을 useCallback으로 메모이제이션
-    const handleNameChange = useCallback((e) => {
-        setNewApiForm(prev => ({ ...prev, name: e.target.value }));
-    }, []);
-    const handleMethodChange = useCallback((e) => {
-        setNewApiForm(prev => ({ ...prev, method: e.target.value }));
-    }, []);
-    const handlePathChange = useCallback((e) => {
-        setNewApiForm(prev => ({ ...prev, path: e.target.value }));
-    }, []);
-    const handleDescriptionChange = useCallback((e) => {
-        setNewApiForm(prev => ({ ...prev, description: e.target.value }));
-    }, []);
-    const handleCancelEdit = useCallback(() => {
-        setEditingApi(null);
-        setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
-    }, []);
+    // 리사이즈 관련 상태 추가
+    const [panelSize, setPanelSize] = useState({
+        width: parseInt(panelWidth) || 400,
+        height: parseInt(panelHeight) || 500
+    });
+    const [isResizing, setIsResizing] = useState(false);
+    const [resizeStartData, setResizeStartData] = useState(null);
     // MockServer 인스턴스 초기화
     useEffect(() => {
         if (!mockServerRef.current) {
@@ -63,6 +160,25 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
             guiProps.onConfigChange(store.apis);
         }
     }, [store.apis]);
+    // 스크롤 위치 보존
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container)
+            return;
+        const saveScrollPosition = () => {
+            scrollPositionRef.current = container.scrollTop;
+        };
+        const restoreScrollPosition = () => {
+            container.scrollTop = scrollPositionRef.current;
+        };
+        container.addEventListener('scroll', saveScrollPosition);
+        // 컴포넌트 업데이트 후 스크롤 복원
+        const timeoutId = setTimeout(restoreScrollPosition, 0);
+        return () => {
+            container.removeEventListener('scroll', saveScrollPosition);
+            clearTimeout(timeoutId);
+        };
+    });
     const handleStartServer = async () => {
         if (!mockServerRef.current)
             return;
@@ -139,6 +255,41 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
             document.removeEventListener('mouseup', handleMouseUp);
         };
     }, [isDragging]);
+    // 리사이즈 기능
+    const handleResizeMouseDown = (e) => {
+        if (!resizable)
+            return;
+        e.preventDefault();
+        e.stopPropagation();
+        setIsResizing(true);
+        setResizeStartData({
+            startX: e.clientX,
+            startY: e.clientY,
+            startWidth: panelSize.width,
+            startHeight: panelSize.height
+        });
+    };
+    useEffect(() => {
+        if (!isResizing || !resizeStartData)
+            return;
+        const handleResizeMouseMove = (e) => {
+            const deltaX = e.clientX - resizeStartData.startX;
+            const deltaY = e.clientY - resizeStartData.startY;
+            const newWidth = Math.max(minWidth, Math.min(maxWidth, resizeStartData.startWidth + deltaX));
+            const newHeight = Math.max(minHeight, Math.min(maxHeight, resizeStartData.startHeight + deltaY));
+            setPanelSize({ width: newWidth, height: newHeight });
+        };
+        const handleResizeMouseUp = () => {
+            setIsResizing(false);
+            setResizeStartData(null);
+        };
+        document.addEventListener('mousemove', handleResizeMouseMove);
+        document.addEventListener('mouseup', handleResizeMouseUp);
+        return () => {
+            document.removeEventListener('mousemove', handleResizeMouseMove);
+            document.removeEventListener('mouseup', handleResizeMouseUp);
+        };
+    }, [isResizing, resizeStartData, minWidth, minHeight, maxWidth, maxHeight]);
     // 위치 스타일 계산
     const getPositionStyle = () => {
         if (dragPosition) {
@@ -228,16 +379,12 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
                     justifyContent: 'center',
                     pointerEvents: 'none'
                 }, children: _jsx(DatabaseIcon, {}) }), _jsx(StatusDot, {})] }));
-    const handleSaveNewApi = () => {
-        if (!newApiForm.name || !newApiForm.path) {
-            alert('Please fill in name and path');
-            return;
-        }
+    const handleSaveNewApi = useCallback((apiData) => {
         const newApi = {
-            name: newApiForm.name,
-            method: newApiForm.method,
-            path: newApiForm.path,
-            description: newApiForm.description,
+            name: apiData.name,
+            method: apiData.method,
+            path: apiData.path,
+            description: apiData.description,
             cases: [{
                     id: `case-${Date.now()}`,
                     name: 'Default Response',
@@ -251,8 +398,7 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
         };
         store.addApi(newApi);
         setEditingApi(null);
-        setNewApiForm({ name: '', method: 'GET', path: '', description: '' });
-    };
+    }, [store]);
     const SimpleMockGui = useMemo(() => {
         return (_jsxs("div", { style: { padding: '20px' }, children: [_jsxs("div", { style: {
                         backgroundColor: '#F1F5F9',
@@ -410,92 +556,11 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
                                                     backgroundColor: '#FEF2F2',
                                                     cursor: 'pointer',
                                                     color: '#DC2626'
-                                                }, children: _jsx(Trash2, { size: 14 }) })] })] }, api.id || index))) }))] }), editingApi && (_jsxs("div", { style: {
-                        backgroundColor: '#F8FAFC',
-                        padding: '20px',
-                        borderRadius: '12px',
-                        border: '1px solid #E2E8F0',
-                        marginBottom: '20px'
-                    }, children: [_jsx("h3", { style: {
-                                fontWeight: '600',
-                                fontSize: '16px',
-                                color: '#1E293B',
-                                margin: '0 0 16px 0'
-                            }, children: editingApi.id ? 'Edit API' : 'Add New API' }), _jsxs("div", { style: { display: 'flex', flexDirection: 'column', gap: '12px' }, children: [_jsxs("div", { children: [_jsx("label", { style: {
-                                                display: 'block',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                color: '#374151',
-                                                marginBottom: '4px'
-                                            }, children: "Name" }), _jsx("input", { type: "text", value: newApiForm.name, onChange: handleNameChange, placeholder: "e.g., Get Users", style: {
-                                                width: '100%',
-                                                padding: '8px 12px',
-                                                border: '1px solid #D1D5DB',
-                                                borderRadius: '6px',
-                                                fontSize: '14px',
-                                                outline: 'none'
-                                            } }, "name-input")] }), _jsxs("div", { style: { display: 'flex', gap: '12px' }, children: [_jsxs("div", { style: { flex: 1 }, children: [_jsx("label", { style: {
-                                                        display: 'block',
-                                                        fontSize: '14px',
-                                                        fontWeight: '500',
-                                                        color: '#374151',
-                                                        marginBottom: '4px'
-                                                    }, children: "Method" }), _jsxs("select", { value: newApiForm.method, onChange: handleMethodChange, style: {
-                                                        width: '100%',
-                                                        padding: '8px 12px',
-                                                        border: '1px solid #D1D5DB',
-                                                        borderRadius: '6px',
-                                                        fontSize: '14px',
-                                                        outline: 'none'
-                                                    }, children: [_jsx("option", { value: "GET", children: "GET" }), _jsx("option", { value: "POST", children: "POST" }), _jsx("option", { value: "PUT", children: "PUT" }), _jsx("option", { value: "DELETE", children: "DELETE" }), _jsx("option", { value: "PATCH", children: "PATCH" })] }, "method-select")] }), _jsxs("div", { style: { flex: 2 }, children: [_jsx("label", { style: {
-                                                        display: 'block',
-                                                        fontSize: '14px',
-                                                        fontWeight: '500',
-                                                        color: '#374151',
-                                                        marginBottom: '4px'
-                                                    }, children: "Path" }), _jsx("input", { type: "text", value: newApiForm.path, onChange: handlePathChange, placeholder: "e.g., /api/users", style: {
-                                                        width: '100%',
-                                                        padding: '8px 12px',
-                                                        border: '1px solid #D1D5DB',
-                                                        borderRadius: '6px',
-                                                        fontSize: '14px',
-                                                        outline: 'none'
-                                                    } }, "path-input")] })] }), _jsxs("div", { children: [_jsx("label", { style: {
-                                                display: 'block',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                color: '#374151',
-                                                marginBottom: '4px'
-                                            }, children: "Description (optional)" }), _jsx("input", { type: "text", value: newApiForm.description, onChange: handleDescriptionChange, placeholder: "Brief description of this API", style: {
-                                                width: '100%',
-                                                padding: '8px 12px',
-                                                border: '1px solid #D1D5DB',
-                                                borderRadius: '6px',
-                                                fontSize: '14px',
-                                                outline: 'none'
-                                            } }, "description-input")] }), _jsxs("div", { style: { display: 'flex', gap: '8px', marginTop: '8px' }, children: [_jsxs("button", { onClick: handleSaveNewApi, style: {
-                                                padding: '8px 16px',
-                                                borderRadius: '6px',
-                                                border: 'none',
-                                                backgroundColor: '#10B981',
-                                                color: 'white',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                cursor: 'pointer'
-                                            }, children: [editingApi.id ? 'Update' : 'Add', " API"] }), _jsx("button", { onClick: handleCancelEdit, style: {
-                                                padding: '8px 16px',
-                                                borderRadius: '6px',
-                                                border: '1px solid #D1D5DB',
-                                                backgroundColor: 'white',
-                                                color: '#6B7280',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                cursor: 'pointer'
-                                            }, children: "Cancel" })] })] })] })), _jsx("div", { style: {
+                                                }, children: _jsx(Trash2, { size: 14 }) })] })] }, api.id || index))) }))] }), _jsx("div", { style: {
                         fontSize: '12px',
                         color: '#94A3B8',
                         textAlign: 'center'
-                    }, children: "API Mock GUI v2.0.14 - React Component" }), serverError && (_jsxs("div", { style: {
+                    }, children: "API Mock GUI v2.0.15 - React Component" }), serverError && (_jsxs("div", { style: {
                         marginTop: '20px',
                         padding: '12px',
                         backgroundColor: '#FEF2F2',
@@ -507,23 +572,15 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
     }, [
         isServerRunning,
         store.apis,
-        editingApi,
-        newApiForm,
         serverError,
         handleStartServer,
-        handleStopServer,
-        handleNameChange,
-        handleMethodChange,
-        handlePathChange,
-        handleDescriptionChange,
-        handleSaveNewApi,
-        handleCancelEdit
+        handleStopServer
     ]);
     const FloatingPanel = () => (_jsxs("div", { ref: panelRef, style: {
             position: 'fixed',
             ...getPositionStyle(),
-            width: panelWidth,
-            height: panelHeight,
+            width: `${panelSize.width}px`,
+            height: `${panelSize.height}px`,
             backgroundColor: 'white',
             borderRadius: '12px',
             border: '1px solid #E2E8F0',
@@ -593,11 +650,34 @@ export const FloatingApiMockManager = ({ serverConfig, autoStart = false, onServ
                                 }, onMouseLeave: (e) => {
                                     e.currentTarget.style.backgroundColor = 'transparent';
                                     e.currentTarget.style.color = '#6B7280';
-                                }, children: _jsx(X, { size: 16 }) })] })] }), !isMinimized && (_jsx("div", { ref: scrollContainerRef, style: {
+                                }, children: _jsx(X, { size: 16 }) })] })] }), !isMinimized && (_jsxs("div", { ref: scrollContainerRef, style: {
                     height: 'calc(100% - 65px)',
                     overflow: 'auto',
                     pointerEvents: 'auto'
-                }, children: SimpleMockGui }))] }));
+                }, children: [SimpleMockGui, editingApi && (_jsx("div", { style: { padding: '0 20px 20px' }, children: _jsx(ApiForm, { editingApi: editingApi, onSave: handleSaveNewApi, onCancel: () => setEditingApi(null) }) }))] })), resizable && !isMinimized && (_jsx("div", { onMouseDown: handleResizeMouseDown, style: {
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: '20px',
+                    height: '20px',
+                    cursor: 'nw-resize',
+                    backgroundColor: 'transparent',
+                    borderTopLeftRadius: '8px',
+                    zIndex: 10,
+                    pointerEvents: 'auto'
+                }, children: _jsx("div", { style: {
+                        position: 'absolute',
+                        bottom: '4px',
+                        right: '4px',
+                        width: '12px',
+                        height: '12px',
+                        background: `
+              linear-gradient(-45deg, transparent 30%, #CBD5E1 30%, #CBD5E1 40%, transparent 40%),
+              linear-gradient(-45deg, transparent 50%, #CBD5E1 50%, #CBD5E1 60%, transparent 60%),
+              linear-gradient(-45deg, transparent 70%, #CBD5E1 70%, #CBD5E1 80%, transparent 80%)
+            `,
+                        borderRadius: '0 0 8px 0'
+                    } }) }))] }));
     return (_jsxs(_Fragment, { children: [_jsx("style", { children: `
           @keyframes pulse {
             0% { opacity: 1; }

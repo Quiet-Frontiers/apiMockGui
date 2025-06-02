@@ -123,6 +123,7 @@ const initFloatingButton = () => {
       autoStart: true,
       draggable: true,
       minimizable: true,
+      resizable: true,
       onServerStart: () => {
         // Server started
       },

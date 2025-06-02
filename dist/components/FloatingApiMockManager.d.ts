@@ -8,6 +8,11 @@ interface FloatingApiMockManagerProps extends ApiMockManagerProps {
     panelHeight?: string;
     minimizable?: boolean;
     draggable?: boolean;
+    resizable?: boolean;
+    minWidth?: number;
+    minHeight?: number;
+    maxWidth?: number;
+    maxHeight?: number;
 }
 export declare const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps>;
 export {};

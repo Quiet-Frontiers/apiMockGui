@@ -14,6 +14,9 @@ A powerful and intuitive GUI library for mocking API responses using axios-mock-
 - 🔄 **Real-time Updates**: Changes take effect immediately
 - 🎛️ **Full Control**: Start/stop mock server, enable/disable individual APIs
 - 📱 **Responsive Design**: Works on all screen sizes
+- 🖱️ **Draggable Interface**: Move the panel by dragging the header
+- 📏 **Resizable Window**: Drag the bottom-right corner to resize the panel
+- 🔽 **Minimizable**: Collapse/expand the panel when needed
 
 ## 📦 Installation
 
@@ -225,6 +228,49 @@ function App() {
 window.apiMockGuiInit();     // Initialize manually
 window.apiMockGuiCleanup();  // Clean up resources
 ```
+
+### Configuration Props
+
+When using the manual component, you can customize the interface:
+
+```tsx
+<ApiMockManager
+  // Server Configuration
+  serverConfig={{
+    baseUrl: 'https://api.yourproject.com',
+    environment: 'browser'
+  }}
+  autoStart={true}
+  
+  // UI Customization
+  position="bottom-right"           // 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  buttonText="API Mock"            // Custom button text
+  panelWidth="800px"               // Panel width (default: '400px')
+  panelHeight="600px"              // Panel height (default: '500px')
+  
+  // Interaction Features
+  draggable={true}                 // Enable panel dragging (default: true)
+  resizable={true}                 // Enable panel resizing (default: true)
+  minimizable={true}               // Enable minimize/maximize (default: true)
+  
+  // Resize Constraints (when resizable=true)
+  minWidth={300}                   // Minimum panel width (default: 300)
+  minHeight={200}                  // Minimum panel height (default: 200)
+  maxWidth={1200}                  // Maximum panel width (default: 800)
+  maxHeight={1000}                 // Maximum panel height (default: 1000)
+  
+  // Event Handlers
+  onServerStart={() => console.log('Started!')}
+  onServerStop={() => console.log('Stopped!')}
+  onConfigChange={(apis) => console.log('APIs changed:', apis)}
+/>
+```
+
+#### UI Interaction Features
+
+- **🖱️ Draggable**: Click and drag the panel header to move it around the screen
+- **📏 Resizable**: Drag the bottom-right corner handle to resize the panel
+- **🔽 Minimizable**: Click the minimize button to collapse/expand the panel
 
 ## 🐛 Troubleshooting
 
@@ -450,6 +496,49 @@ mockServer.updateHandlers(apis);
 window.apiMockGuiInit();     // Initialize manually
 window.apiMockGuiCleanup();  // Clean up resources
 ```
+
+### Configuration Props
+
+When using the manual component, you can customize the interface:
+
+```tsx
+<ApiMockManager
+  // Server Configuration
+  serverConfig={{
+    baseUrl: 'https://api.yourproject.com',
+    environment: 'browser'
+  }}
+  autoStart={true}
+  
+  // UI Customization
+  position="bottom-right"           // 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  buttonText="API Mock"            // Custom button text
+  panelWidth="800px"               // Panel width (default: '400px')
+  panelHeight="600px"              // Panel height (default: '500px')
+  
+  // Interaction Features
+  draggable={true}                 // Enable panel dragging (default: true)
+  resizable={true}                 // Enable panel resizing (default: true)
+  minimizable={true}               // Enable minimize/maximize (default: true)
+  
+  // Resize Constraints (when resizable=true)
+  minWidth={300}                   // Minimum panel width (default: 300)
+  minHeight={200}                  // Minimum panel height (default: 200)
+  maxWidth={1200}                  // Maximum panel width (default: 800)
+  maxHeight={1000}                 // Maximum panel height (default: 1000)
+  
+  // Event Handlers
+  onServerStart={() => console.log('Started!')}
+  onServerStop={() => console.log('Stopped!')}
+  onConfigChange={(apis) => console.log('APIs changed:', apis)}
+/>
+```
+
+#### UI Interaction Features
+
+- **🖱️ Draggable**: Click and drag the panel header to move it around the screen
+- **📏 Resizable**: Drag the bottom-right corner handle to resize the panel
+- **🔽 Minimizable**: Click the minimize button to collapse/expand the panel
 
 ## 🛠️ Environment Configuration
 

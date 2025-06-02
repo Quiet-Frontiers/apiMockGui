@@ -12,6 +12,11 @@ interface FloatingApiMockManagerProps extends ApiMockManagerProps {
   panelHeight?: string;
   minimizable?: boolean;
   draggable?: boolean;
+  resizable?: boolean;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
+  maxHeight?: number;
 }
 
 // API 폼을 별도 컴포넌트로 분리 - 내부 상태 관리로 포커스 문제 해결
@@ -231,6 +236,11 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   panelHeight = '500px',
   minimizable = true,
   draggable = true,
+  resizable = true,
+  minWidth = 300,
+  minHeight = 200,
+  maxWidth = 800,
+  maxHeight = 1000,
   ...guiProps
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -250,6 +260,19 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
   const scrollPositionRef = useRef<number>(0); // 스크롤 위치 보존용
 
   const store = useMockApiStore();
+
+  // 리사이즈 관련 상태 추가
+  const [panelSize, setPanelSize] = useState<{ width: number; height: number }>({
+    width: parseInt(panelWidth) || 400,
+    height: parseInt(panelHeight) || 500
+  });
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartData, setResizeStartData] = useState<{
+    startX: number;
+    startY: number;
+    startWidth: number;
+    startHeight: number;
+  } | null>(null);
 
   // MockServer 인스턴스 초기화
   useEffect(() => {
@@ -384,6 +407,55 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
+
+  // 리사이즈 기능
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    if (!resizable) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsResizing(true);
+    setResizeStartData({
+      startX: e.clientX,
+      startY: e.clientY,
+      startWidth: panelSize.width,
+      startHeight: panelSize.height
+    });
+  };
+
+  useEffect(() => {
+    if (!isResizing || !resizeStartData) return;
+
+    const handleResizeMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - resizeStartData.startX;
+      const deltaY = e.clientY - resizeStartData.startY;
+      
+      const newWidth = Math.max(
+        minWidth,
+        Math.min(maxWidth, resizeStartData.startWidth + deltaX)
+      );
+      const newHeight = Math.max(
+        minHeight,
+        Math.min(maxHeight, resizeStartData.startHeight + deltaY)
+      );
+      
+      setPanelSize({ width: newWidth, height: newHeight });
+    };
+
+    const handleResizeMouseUp = () => {
+      setIsResizing(false);
+      setResizeStartData(null);
+    };
+
+    document.addEventListener('mousemove', handleResizeMouseMove);
+    document.addEventListener('mouseup', handleResizeMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMouseMove);
+      document.removeEventListener('mouseup', handleResizeMouseUp);
+    };
+  }, [isResizing, resizeStartData, minWidth, minHeight, maxWidth, maxHeight]);
 
   // 위치 스타일 계산
   const getPositionStyle = () => {
@@ -816,8 +888,8 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
       style={{
         position: 'fixed',
         ...getPositionStyle(),
-        width: panelWidth,
-        height: panelHeight,
+        width: `${panelSize.width}px`,
+        height: `${panelSize.height}px`,
         backgroundColor: 'white',
         borderRadius: '12px',
         border: '1px solid #E2E8F0',
@@ -947,6 +1019,40 @@ export const FloatingApiMockManager: React.FC<FloatingApiMockManagerProps> = ({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {/* 리사이즈 핸들 - 오른쪽 하단 모서리 */}
+      {resizable && !isMinimized && (
+        <div
+          onMouseDown={handleResizeMouseDown}
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            width: '20px',
+            height: '20px',
+            cursor: 'nw-resize',
+            backgroundColor: 'transparent',
+            borderTopLeftRadius: '8px',
+            zIndex: 10,
+            pointerEvents: 'auto'
+          }}
+        >
+          {/* 리사이즈 핸들 시각적 표시 */}
+          <div style={{
+            position: 'absolute',
+            bottom: '4px',
+            right: '4px',
+            width: '12px',
+            height: '12px',
+            background: `
+              linear-gradient(-45deg, transparent 30%, #CBD5E1 30%, #CBD5E1 40%, transparent 40%),
+              linear-gradient(-45deg, transparent 50%, #CBD5E1 50%, #CBD5E1 60%, transparent 60%),
+              linear-gradient(-45deg, transparent 70%, #CBD5E1 70%, #CBD5E1 80%, transparent 80%)
+            `,
+            borderRadius: '0 0 8px 0'
+          }} />
         </div>
       )}
     </div>

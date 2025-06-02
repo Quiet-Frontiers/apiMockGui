@@ -285,6 +285,15 @@ const App = () => {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Window Resize</h3>
+                  <p className="text-sm text-gray-600">우측 하단 모서리를 드래그하여 창 크기 조절</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                 </div>
@@ -357,6 +366,7 @@ const App = () => {
               <ul className="space-y-1">
                 <li>• <code className="bg-blue-100 px-1 rounded">minimizable</code>: 최소화 기능</li>
                 <li>• <code className="bg-blue-100 px-1 rounded">draggable</code>: 드래그 기능</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">resizable</code>: 창 크기 조절 기능</li>
                 <li>• <code className="bg-blue-100 px-1 rounded">autoStart</code>: 자동 서버 시작</li>
               </ul>
             </div>
@@ -386,6 +396,7 @@ const App = () => {
         panelHeight="700px"
         minimizable={true}
         draggable={true}
+        resizable={true}
       />
 
       {/* Test API Buttons */}

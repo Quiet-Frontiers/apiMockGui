@@ -1,6 +1,6 @@
 {
   "name": "api-mock-gui",
-  "version": "2.0.16",
+  "version": "2.1.0",
   "type": "module",
   "description": "A GUI library for mocking API responses using axios-mock-adapter with case management",
   "main": "dist/index.js",
